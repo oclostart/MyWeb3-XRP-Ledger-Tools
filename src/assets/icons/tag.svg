@@ -1,0 +1,6 @@
+<!-- Phosphor Icons 2.1.1, "tag", regular weight. MIT, (c) 2023 Phosphor Icons.
+     From the official @phosphor-icons/core package, for the SourceTag tool. The MW3 file's
+     globe is Phosphor too (ph:globe), so this matches its weight at every size.
+     Geometry verbatim; only the fill moved from the root onto the path, which is
+     where build-icons.mjs reads paints. Never redraw it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M243.31,136,144,36.69A15.86,15.86,0,0,0,132.69,32H40a8,8,0,0,0-8,8v92.69A15.86,15.86,0,0,0,36.69,144L136,243.31a16,16,0,0,0,22.63,0l84.68-84.68a16,16,0,0,0,0-22.63Zm-96,96L48,132.69V48h84.69L232,147.31ZM96,84A12,12,0,1,1,84,72,12,12,0,0,1,96,84Z"/></svg>

@@ -1,0 +1,70 @@
+[METADATA]
+modified = datetime
+expires = datetime
+
+[ORGANIZATION]
+name = ""
+website = ""
+myweb3 = ""
+x = ""
+
+[[PRINCIPALS]]
+name = ""
+email = ""
+myweb3 = ""
+x = ""
+
+[[VALIDATORS]]
+public_key = ""
+attestation = ""
+network = ""
+owner_country = ""
+server_country = ""
+server_location = ""
+server_cloud = boolean
+network_asn = integer
+desc = ""
+unl = ""
+model = ""
+cpu = ""
+memory = ""
+storage = ""
+raid = boolean
+raid_standard = ""
+network_card = ""
+operating_system = ""
+internet_connectivity = ""
+
+[[ACCOUNTS]]
+address = ""
+desc = ""
+network = ""
+
+[[SERVERS]]
+json_rpc = ""
+peer = ""
+ws = ""
+network = ""
+desc = ""
+
+[[ISSUERS]]
+address = ""
+name = ""
+desc = ""
+icon = ""
+
+[[TOKENS]]
+issuer = ""
+currency = ""
+name = ""
+network = ""
+display_decimals = integer
+icon = ""
+desc = ""
+asset_class = ""
+asset_subclass = ""
+
+[[TOKENS.URLS]]
+url = ""
+type = ""
+title = ""

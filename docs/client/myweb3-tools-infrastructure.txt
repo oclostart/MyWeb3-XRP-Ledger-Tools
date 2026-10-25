@@ -1,0 +1,24 @@
+// MyWeb3.me XRPL Tools: Hackathon Infrastructure
+//
+// ── SERVICES ──
+// - GitHub: repo (linked to Vercel)
+// - Bluehost: domain + DNS pointer (DNS access)
+// - Vercel: hosting, deploys, functions, env vars, firewall, logs
+// - Xaman Platform API: sign requests + signing status (API key + secret, apps.xumm.dev)
+// - XRP Ledger Mainnet: public node (reads)
+// - WalletConnect (Reown): Joey (project ID)
+//
+// ── FRONT-END ──
+// - React + Vite + TypeScript
+// - xrpl-connect (wallets)
+// - SourceTag + toml builder: browser only
+// - myweb3-options.json
+//
+// ── BACK-END ──
+// - POST /api/sign (Vercel Function)
+//     - Input: { action, value, account }
+//     - Actions: set_emailhash | remove_emailhash | set_domain | remove_domain | set_trustline
+//     - Builds tx with xrpl-transactions.ts → Xaman sign request
+//     - SourceTag: 2357011303
+// - Rate limit: ~10 req/min per IP on /api/sign
+// - Env: XAMAN_API_KEY, XAMAN_API_SECRET (server), VITE_WALLETCONNECT_PROJECT_ID (public)

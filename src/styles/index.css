@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './typography.css';
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    color-scheme: dark;
+    /* The scrollbar's room is kept on every page, scrolling or not, and the
+       bar is the thin one — both as myweb3.me sets them, measured 2026-10-08.
+       Without the gutter a short page (the tools hub) centred the header in
+       the full window and a long one in the window less the scrollbar, so the
+       logo sat 5.5px right of myweb3.me's wherever a page fit the screen, and
+       jumped between pages; with a default-width bar it still sat 2px right,
+       15px of gutter against their 11. Only the width is theirs — their thumb
+       is their green, and ours stays the browser's. */
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+
+  /* Except on a page pinned to the window, which never scrolls: there the kept
+     room is an empty strip down the right edge of the map. */
+  html:has([data-shell='bare']) {
+    scrollbar-gutter: auto;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--color-canvas);
+    background-image: var(--gradient-canvas);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    letter-spacing: 0.02em;
+  }
+
+  /* One focus treatment, applied globally. Components do not define their
+     own — that is how focus rings drift out of sync across an app. */
+  :focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::placeholder {
+    color: var(--color-text-subtle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Named animations. Registered in the theme so they are available as
+   `animate-*` utilities rather than inline keyframes in a component.
+   ------------------------------------------------------------------------- */
+
+@theme {
+  --animate-rise-in: rise-in var(--duration-normal) var(--ease-spring) both;
+
+  /* Radar ping on a map pin. Two named variants rather than an inline delay,
+     so the offset stays a design decision instead of a magic number in JSX. */
+  --animate-pin-pulse: pin-pulse 2400ms var(--ease-out-quart) infinite;
+  --animate-pin-pulse-late: pin-pulse 2400ms var(--ease-out-quart) 1200ms infinite;
+}
+
+@keyframes pin-pulse {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Motion primitives. Tailwind v4 has no `--duration-*` theme namespace, so
+   raw `duration-fast` silently generates nothing. Naming the transition once
+   here is better anyway: components declare intent, not timing numbers.
+   ------------------------------------------------------------------------- */
+
+@utility glow-accent {
+  filter: var(--glow-accent);
+}
+
+/* A gradient border, which CSS has no direct way to draw.
+   
+   Two backgrounds in one box: the panel's own fill clipped to the padding
+   box, and the gradient clipped to the border box. The border itself is
+   transparent, so what shows through it is the gradient and what covers the
+   middle is the fill. `border-radius` is honoured by both clips, which is why
+   this works where a pseudo-element with a rounded mask gets fiddly.
+   
+   The fill has to live here rather than as a `bg-*` class on the same
+   element — `background` is one property, and a utility that sets it would
+   overwrite whatever the class had put there. */
+@utility panel-stroke {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--color-canvas), var(--color-canvas)) padding-box,
+    var(--gradient-panel-stroke) border-box;
+}
+
+/* A centred block with straight sides: every line but the last runs the full
+   measure and the last is centred. A centred paragraph's first line starts
+   wherever its length leaves it, so two pages' lines began at different
+   places; this starts them all at the measure's edge (owner, 2026-10-08). */
+@utility text-justify-center {
+  text-align: justify;
+  text-align-last: center;
+}
+
+@utility transition-ui {
+  transition-property: background-color, border-color, color, box-shadow, opacity, transform, filter;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out-quart);
+}
+
+@utility transition-ui-slow {
+  transition-property: background-color, border-color, color, box-shadow, opacity, transform, filter;
+  transition-duration: var(--duration-normal);
+  transition-timing-function: var(--ease-out-quart);
+}
+
+/* A mark that turns into another in place and back — the copy mark into its
+   green check, and the check back into the mark (client, 2026-10-12 and
+   2026-10-13). The two share one spot; each fades and scales, with a little
+   overshoot as it grows in, so the change is seen without anything moving
+   off its spot and without a cut. Tailwind v4's `scale-*` and `rotate-*` set
+   the `scale` and `rotate` properties, not `transform`, hence the list. */
+@utility transition-swap {
+  transition-property: opacity, scale, rotate;
+  transition-duration: var(--duration-slow);
+  transition-timing-function: var(--ease-spring);
+}

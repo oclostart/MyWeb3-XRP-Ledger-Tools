@@ -1,0 +1,131 @@
+/* ============================================================================
+   TYPOGRAPHY ROLES
+   ----------------------------------------------------------------------------
+   The named vocabulary for text. Components use these, not the raw `text-*`
+   steps — a role says what a piece of text IS, so two people reaching for
+   "card title" land on the same size, weight and rhythm every time.
+
+   Each role composes tokens from tokens.css; nothing here invents a value.
+   Sizes are even px, line-heights are multiples of 4, tracking is +0.02em.
+
+   role            size / line-height   weight   used for
+   -------------   ------------------   ------   --------------------------------
+   type-wordmark        22 / 28           900    the MyWeb3.me lockup, only
+   type-hero            56 / 64           700    hero titles, one per page
+   type-display         40 / 48           600    page titles, tier numerals
+   type-title           26 / 32           600    figures set large — the SourceTag
+   type-heading         22 / 28           700    card titles
+   type-title-sm           22 / 28           600    prices
+   type-subhead         18 / 24           600    secondary prices, tier labels
+   type-menu            18 / 24           400    a side menu's links (the policies)
+   type-label           16 / 24           600    nav, form labels, large buttons
+   type-label-md        14 / 20           600    default buttons
+   type-label-sm        12 / 16           600    small buttons, dense controls
+   type-body            14 / 20           400    feature rows, running text
+   type-caption         12 / 16           400    billing and cancellation notes
+   type-micro           10 / 16           600    uppercase eyebrows
+
+   Roles carry their own weight. If text needs a different weight, it is
+   probably a different role — reach for one rather than bolting `font-*` on.
+   ========================================================================= */
+
+@utility type-wordmark {
+  font-size: var(--text-2xl);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--text-2xl--letter-spacing);
+  font-weight: var(--font-weight-black);
+}
+
+@utility type-hero {
+  font-size: var(--text-6xl);
+  line-height: var(--text-6xl--line-height);
+  letter-spacing: var(--text-6xl--letter-spacing);
+  font-weight: var(--font-weight-bold);
+}
+
+@utility type-display {
+  font-size: var(--text-5xl);
+  line-height: var(--text-5xl--line-height);
+  letter-spacing: var(--text-5xl--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}
+
+@utility type-title {
+  font-size: var(--text-3xl);
+  line-height: var(--text-3xl--line-height);
+  letter-spacing: var(--text-3xl--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}
+
+@utility type-heading {
+  font-size: var(--text-2xl);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--text-2xl--letter-spacing);
+  font-weight: var(--font-weight-bold);
+}
+
+@utility type-title-sm {
+  font-size: var(--text-2xl);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--text-2xl--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}
+
+@utility type-subhead {
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+  letter-spacing: var(--text-xl--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* myweb3.me's side menu on its policy pages: 18, regular weight — a list of
+   places, not labels, so lighter than `type-subhead` beside it (client,
+   2026-10-13). */
+@utility type-menu {
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+  letter-spacing: var(--text-xl--letter-spacing);
+  font-weight: var(--font-weight-normal);
+}
+
+@utility type-label {
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+  letter-spacing: var(--text-lg--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}
+
+@utility type-label-md {
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  letter-spacing: var(--text-base--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}
+
+@utility type-label-sm {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  letter-spacing: var(--text-sm--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}
+
+@utility type-body {
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  letter-spacing: var(--text-base--letter-spacing);
+  font-weight: var(--font-weight-normal);
+}
+
+@utility type-caption {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  letter-spacing: var(--text-sm--letter-spacing);
+  font-weight: var(--font-weight-normal);
+}
+
+@utility type-micro {
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  letter-spacing: var(--text-xs--letter-spacing);
+  font-weight: var(--font-weight-semibold);
+}

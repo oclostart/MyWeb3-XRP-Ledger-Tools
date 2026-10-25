@@ -1,0 +1,346 @@
+/* ============================================================================
+   MW3 DESIGN TOKENS — single source of truth for the visual language.
+   Extracted from the MyWeb3.me v2.0 Figma file (K3Tga3MGH7NupSQppOo9Qt).
+   ----------------------------------------------------------------------------
+   DARK ONLY. There is no light theme and no `[data-theme]` switch. A `dark:`
+   variant anywhere in this codebase is a mistake — the checker rejects it.
+
+   GRID. 4px base, 8px preferred. Every dimension below is a whole even number
+   of pixels. There is deliberately no scale multiplier: a factor like 0.8
+   produced values such as 12.8px, which is what this system exists to prevent.
+   To change density, edit the steps — that is the discipline an 8pt grid asks
+   for, and `scripts/check-design-system.mjs` fails the build on any odd or
+   fractional token.
+
+   Two layers, and the distinction matters:
+
+   1. PRIMITIVES  raw scale values (--red-500, --ink-700).
+                  Components must NEVER reference these directly.
+   2. SEMANTIC    role-based aliases (--color-accent, --color-text-muted).
+                  This is the ONLY layer components are allowed to touch.
+
+   Values marked (figma) are lifted verbatim from the design file.
+   ========================================================================= */
+
+@theme static {
+  /* Drop Tailwind's stock palette so a stray `bg-red-500` fails loudly
+     instead of silently shipping an off-system colour. */
+  --color-*: initial;
+
+  /* ------------------------------------------------- PRIMITIVES: brand red */
+  --red-300: #d94a4a;
+  --red-400: #a81a1a;   /* hover — lifted from #8c1515 */
+  --red-500: #8c1515;   /* (figma) Brand Red — the one brand colour */
+  --red-600: #6f1010;   /* pressed */
+  --red-900: #3a0a0a;
+  --red-950: #1c0606;   /* subtle fills, tinted borders */
+
+  /* ----------------------------------------------------- PRIMITIVES: ink */
+  --ink-1000: #000000;  /* (figma) Grays/Black */
+  --ink-975:  #08090b;  /* canvas base */
+  --ink-950:  #0e1014;  /* (figma) card surface */
+  --ink-925:  #0f0f0f;  /* (figma) sunken / disabled control */
+  --ink-900:  #17191d;
+  --ink-875:  #212121;  /* (figma) toggle track, dropdown fill */
+  --ink-800:  #24262b;
+  --ink-700:  #2a2a2a;  /* (figma) */
+  --ink-600:  #3e3e3e;  /* (figma) inactive check fill */
+  --ink-550:  #515151;  /* (figma) toggle knob */
+  --ink-500:  #565659;
+  --ink-400:  #707070;  /* (figma) tertiary text */
+  --ink-300:  #8e8e93;  /* (figma) Grays/Gray — secondary text */
+  --ink-200:  #b8b8bd;
+  --ink-100:  #dedee2;
+  --ink-50:   #ededed;  /* (figma) page-title off-white */
+  --ink-0:    #ffffff;  /* (figma) Grays/White */
+
+  /* ------------------------------------------ PRIMITIVES: category accents */
+  --teal-500: #158c84;  /* (figma) Toolkit */
+  --lime-500: #c8e01f;  /* (figma) expiry / time-sensitive notice */
+  --green-500: #2e9e5b;
+
+  /* Featured gold. #94701f is the brightest gold that still clears 4.5:1
+     against white text — the obvious bright golds sit near 2:1, which is not
+     readable at chip size.
+
+     --gold-400 is the brighter one, for strokes and marks with nothing sitting
+     on top of them. The contrast floor is a text rule; a ring carries no text,
+     so holding it to #94701f only made the gold look muddy. */
+  --gold-400: #c9a227;
+  --gold-500: #94701f;
+  --amber-500: #d99518;
+
+  /* ---------------------------------------------------- PRIMITIVES: link blue
+     The one blue in the system. On the page it is a *hover* colour only —
+     links rest in brand red. It exists so a link has somewhere to go on hover
+     that is not just a lighter red, which at this size is hard to see move.
+     Its second use is inside a file preview, as the keys' colour (owner,
+     2026-10-08): code, not chrome, and still never a resting UI colour.
+     #2f80ed measures 5.1:1 on the canvas, so the hovered state is the readable
+     one. */
+  --blue-500: #2f80ed;
+
+  /* ------------------------------------------------------ SEMANTIC: color */
+  --color-canvas:          var(--ink-975);
+  --color-surface:         var(--ink-950);
+  --color-surface-raised:  var(--ink-900);
+  --color-surface-sunken:  var(--ink-925);
+  --color-surface-hover:   var(--ink-900);
+  --color-surface-active:  var(--ink-800);
+  --color-surface-inverse: var(--ink-0);   /* the icon pills — the one light plate */
+  /* Hover text's bubble: black at 85% — see-through, as MyWeb3's is (client,
+     2026-10-13 and 14). Black on this near-black page needs an edge to read
+     as an object, so the bubble also takes `border-strong`. */
+  --color-tooltip:         color-mix(in srgb, var(--ink-1000) 85%, transparent);
+  /* 50%, not 72%. The dim is there to push the page back, not to hide it —
+     at 0.72 a modal sat on what was effectively a black sheet, and the thing
+     someone was in the middle of disappeared behind the thing they were being
+     asked about. The panel still separates itself: it is `canvas` over a
+     blurred, darkened page, so it reads as the lighter object. */
+  --color-overlay:         rgb(0 0 0 / 0.5);
+
+  /* Switch and select internals */
+  --color-track:      var(--ink-875);
+  --color-track-on:   var(--red-500);
+  --color-knob:       var(--ink-550);
+  --color-knob-on:    var(--ink-0);
+
+  /* Form fields — the file fills inputs rather than outlining them */
+  --color-field:        var(--ink-700);
+  --color-field-hover:  var(--ink-600);
+
+  /* Text — by emphasis, not by colour name */
+  --color-text:             var(--ink-0);
+  --color-text-heading:     var(--ink-50);   /* page titles sit just under pure white */
+  --color-text-muted:       var(--ink-300);
+  --color-text-subtle:      var(--ink-400);
+  --color-text-disabled:    var(--ink-500);
+  --color-text-on-accent:   var(--ink-0);
+  --color-text-on-category: var(--ink-700);  /* dark label on a category plate */
+
+  /* Borders */
+  --color-border:         var(--ink-800);
+  --color-border-strong:  var(--ink-700);
+  --color-border-muted:   var(--ink-500);  /* segmented-control hairline */
+  --color-border-accent:  var(--red-500);
+  /* Featured listings are outlined, not filled — a third of the brand red
+     reads as "this one is promoted" without competing with the content. */
+  --color-border-featured: color-mix(in srgb, var(--red-500) 32%, transparent);
+  --color-border-focus:   var(--red-400);
+
+  /* Accent — the single brand action colour */
+  --color-accent:         var(--red-500);
+  --color-accent-hover:   var(--red-400);
+  --color-accent-active:  var(--red-600);
+  --color-accent-subtle:  var(--red-950);
+  --color-accent-text:    var(--red-500);
+
+  /* Links rest on the accent and turn blue under the pointer. Named for what
+     it is: the hovered state, not the link colour. */
+  --color-link-hover: var(--blue-500);
+
+  /* A key in a file preview — `name` in `name = "Lost Art"`. Blue rather than
+     grey, at the owner's ask (2026-10-08), so the names of what someone filled
+     in read as part of the file rather than as its scaffolding. */
+  --color-code-key: var(--blue-500);
+
+  /* A value on the ledger, or derived for it — the SourceTag a domain hashes
+     to, the domain or EmailHash an account carries. Blue at rest, at the
+     client's ask (2026-10-12), so the answer a tool exists to give stands out
+     from the words around it. It marks a value and never a link: nothing set
+     in it goes anywhere, and a link still rests in brand red. */
+  --color-value: var(--blue-500);
+
+  /* Status */
+  --color-positive:  var(--green-500);
+  --color-caution:   var(--amber-500);
+  --color-notice:    var(--lime-500);
+  --color-critical:  var(--red-400);
+
+  /* Featured — the gold marker on a promoted listing. `line` is for strokes,
+     where the brighter gold is legible because nothing sits on it. */
+  --color-featured:      var(--gold-500);
+  --color-featured-line: var(--gold-400);
+  /* Gold set *as* text on the dark ground — the Featured form's title.
+     Neither of the two above fits: `--color-featured` is tuned so white text
+     can sit on top of it, which makes it a dim 3.5:1 when it is the text, and
+     `-line` is named for strokes. Same value as the stroke, different job, so
+     it gets its own name rather than borrowing one. 6.5:1 on `surface`. */
+  --color-featured-text: var(--gold-400);
+
+  /* Category identity */
+  --color-category-teal: var(--teal-500);
+
+  /* --------------------------------------------------------- TYPOGRAPHY */
+  /* Titillium Web carries the UI. Open Sans is the secondary/body face. */
+  --font-sans: 'Titillium Web', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body: 'Open Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* The raw scale. Every size is an even number of px; every line-height is a
+     multiple of 4, so a line of text always occupies whole grid rows.
+     Tracking is +0.02em at every step — that even, slightly-open letterfit is
+     a signature of this design, taken from the file.
+
+     Prefer the named `type-*` roles in typography.css over these steps: the
+     roles are the vocabulary, the steps are the raw material. */
+  --text-xs:   0.625rem;  --text-xs--line-height:   1rem;     --text-xs--letter-spacing:   0.02em;  /* 10 / 16 */
+  --text-sm:   0.75rem;   --text-sm--line-height:   1rem;     --text-sm--letter-spacing:   0.02em;  /* 12 / 16 */
+  --text-base: 0.875rem;  --text-base--line-height: 1.25rem;  --text-base--letter-spacing: 0.02em;  /* 14 / 20 */
+  --text-lg:   1rem;      --text-lg--line-height:   1.5rem;   --text-lg--letter-spacing:   0.02em;  /* 16 / 24 */
+  --text-xl:   1.125rem;  --text-xl--line-height:   1.5rem;   --text-xl--letter-spacing:   0.02em;  /* 18 / 24 */
+  --text-2xl:  1.375rem;  --text-2xl--line-height:  1.75rem;  --text-2xl--letter-spacing:  0.02em;  /* 22 / 28 */
+  --text-3xl:  1.625rem;  --text-3xl--line-height:  2rem;     --text-3xl--letter-spacing:  0.02em;  /* 26 / 32 */
+  --text-4xl:  2rem;      --text-4xl--line-height:  2.5rem;   --text-4xl--letter-spacing:  0.02em;  /* 32 / 40 */
+  --text-5xl:  2.5rem;    --text-5xl--line-height:  3rem;     --text-5xl--letter-spacing:  0.02em;  /* 40 / 48 */
+  --text-6xl:  3.5rem;    --text-6xl--line-height:  4rem;     --text-6xl--letter-spacing:  0.02em;  /* 56 / 64 */
+
+  --font-weight-normal:   400;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+  --font-weight-black:    900;  /* wordmark only */
+
+  /* ------------------------------------------------------------- SPACING */
+  /* 4px base. Prefer multiples of 8 (gap-2, gap-4, gap-6, gap-8); the 4px
+     half-step exists for the places where 8 is too coarse. */
+  --spacing: 0.25rem;   /* 4 */
+
+  /* Page shell */
+  --container-content: 68rem;  /* 1088 */
+  --container-page:    86rem;  /* 1376 */
+  --container-wide:    84rem;  /* 1344 — the directory's browse column */
+  /* 1420 — myweb3.me's nav measure, matched so the two products' headers put
+     their lockups in the same place. Its rule is this width centred with 16px
+     of padding, so the content hugs the edge until the viewport outgrows it. */
+  --container-nav:     88.75rem; /* 1420 */
+  /* `xs` is the merchant profile's width, and it is load-bearing: the 150-
+     character bio cap in `api-contract.md` is derived from a 480px panel.
+     `sm` is the MW3 prompt, measured off the reference frames at 568 — a
+     455x56 field with 56px of air on each side. */
+  /* The MW3 prompt field: 456 in a 568 panel, which is 56 of air each side.
+     A cap rather than a margin, so a narrower panel gives the field its
+     whole width instead of keeping a desktop proportion on a phone. */
+  --container-field:    28.5rem;  /* 456 */
+  /* `2xs` is one short answer: two wallets to choose between, one field to
+     fill. Its floor is the header — the longest Select Wallet title,
+     Spanish's at 232, centred clear of the close button's 32 on both sides
+     with 7 to spare, inside 24 of padding and the 1px stroke. */
+  --container-modal-2xs: 22.5rem; /* 360 */
+  --container-modal-xs: 30rem;    /* 480 */
+  --container-modal-sm: 35.5rem;  /* 568 */
+  --container-modal-md: 44rem;  /* 704 */
+  --container-modal-lg: 60rem;  /* 960 */
+
+  /* --------------------------------------------------------------- RADII */
+  --radius-sm:   0.25rem;    /* 4  */
+  --radius-md:   0.375rem;   /* 6  */
+  --radius-lg:   0.5rem;     /* 8  — buttons, inputs */
+  --radius-xl:   0.625rem;   /* 10 */
+  --radius-2xl:  0.75rem;    /* 12 — cards, panels */
+  --radius-3xl:  1rem;       /* 16 */
+  --radius-full: 9999px;     /* pills, avatars, checks */
+
+  /* -------------------------------------------------- CONTROL DIMENSIONS */
+  /* Pure 8pt. Tokenised so controls line up across screens. */
+  --size-control-sm: 1.5rem;   /* 24 */
+  --size-control-md: 2rem;     /* 32 */
+  --size-control-lg: 2.5rem;   /* 40 */
+  --size-control-xl: 3rem;     /* 48 — clears the 44px touch-target minimum */
+  --size-control-2xl: 3.5rem;  /* 56 — the field in an MW3 prompt */
+  /* The narrowest a labelled button gets: the width of a four-letter label
+     at its size, padding included, so Set and OK stand as wide as Done
+     rather than pinched to their two or three letters (client, 2026-10-12). */
+  --size-button-min-sm: 3.5rem;  /* 56 */
+  --size-button-min-md: 4.5rem;  /* 72 */
+  --size-button-min-lg: 5rem;    /* 80 */
+  --size-button-min-xl: 6rem;    /* 96 */
+  /* How much of the results sheet stands above the bottom of a phone map:
+     its top border and drag handle (29), then the top of the card leading
+     it — border and padding (21) and header (88) — and 6 of air, so the cut
+     falls in the gap above the card's contact rows rather than through
+     anything. A constant rather than a measurement, so the sheet knows where
+     to rest on its first frame instead of snapping into place after one. */
+  --size-sheet-peek:  9rem;     /* 144 */
+  --size-icon:       1.25rem;  /* 20 */
+  --size-ring-featured: 0.25rem;  /* 4 — the gold ring on a Featured avatar */
+  --size-pill:       2rem;     /* 32 */
+  --size-track-w:    2.125rem; /* 34 — switch track */
+  --size-track-h:    1.375rem; /* 22 */
+  --size-knob:       1.125rem; /* 18 */
+
+  /* ------------------------------------------------------------- SHADOWS */
+  /* On near-black, elevation reads through contrast far more than shadow.
+     These stay deliberately restrained. */
+  --shadow-xs: 0 2px 2px 0 rgb(0 0 0 / 0.40);
+  --shadow-sm: 0 2px 6px -2px rgb(0 0 0 / 0.50);
+  --shadow-md: 0 8px 20px -6px rgb(0 0 0 / 0.60);
+  --shadow-lg: 0 20px 48px -12px rgb(0 0 0 / 0.70);
+  --shadow-accent: 0 6px 20px -6px rgb(140 21 21 / 0.55);
+
+  /* Map pins. Built with color-mix off the accent so the glow follows the
+     brand rather than pinning a second copy of the red. */
+  --shadow-pin:
+    0 0 0 2px color-mix(in srgb, var(--red-400) 30%, transparent),
+    0 0 12px 2px color-mix(in srgb, var(--red-400) 60%, transparent);
+  --shadow-pin-active:
+    0 0 0 4px color-mix(in srgb, var(--red-300) 35%, transparent),
+    0 0 24px 6px color-mix(in srgb, var(--red-300) 75%, transparent);
+
+  /* The hover answer for artwork that must not be tinted — token discs are
+     the brand's own colour, so the red happens around the mark instead of on
+     it. `drop-shadow` rather than `box-shadow`: it follows the glyph's alpha,
+     so a disc glows as a disc and not as a square. Two passes, tight and
+     loose, or the light has an edge.
+
+     Built on `--red-300`, not the brand `--red-500`. A glow is light, and
+     #8c1515 has none to give — on a Featured cover, which is whatever photo
+     the merchant uploaded, a dark red bloom against a bright image is
+     invisible. The map pins reach for the same bright end for the same
+     reason. */
+  --glow-accent:
+    drop-shadow(0 0 4px color-mix(in srgb, var(--red-300) 90%, transparent))
+    drop-shadow(0 0 12px color-mix(in srgb, var(--red-300) 70%, transparent));
+
+  /* The gradient stroke around a modal panel.
+     
+     Solved from the MW3 popups rather than eyeballed. Against their #080808
+     ground the edge composites to #090707 at the top-left and #570e0e at the
+     bottom-right — brand red from about 1% to about 60%.
+     
+     The angle comes from the spreads: top-to-bottom runs 2%->49% while
+     left-to-right runs 12%->28%, so the vertical axis carries about 2.9x the
+     horizontal. For a 690x350 panel that puts the direction at roughly 170deg
+     — all but vertical with a lean right, not the corner-to-corner diagonal it
+     looks like at a glance.
+     
+     The stops are not evenly spaced because the ramp is not linear: the midpoint
+     of the sides (20%) sits well below the midpoint of top and bottom (25%),
+     which only happens if the gradient stays dark and then accelerates. These
+     five reproduce all six measured points to within half a percent. */
+  --gradient-panel-stroke:
+    linear-gradient(
+      170deg,
+      color-mix(in srgb, var(--color-accent) 1%, transparent) 0%,
+      color-mix(in srgb, var(--color-accent) 3%, transparent) 20%,
+      color-mix(in srgb, var(--color-accent) 15%, transparent) 45%,
+      color-mix(in srgb, var(--color-accent) 33%, transparent) 70%,
+      color-mix(in srgb, var(--color-accent) 60%, transparent) 100%
+    );
+
+  /* -------------------------------------------------------------- MOTION */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --duration-instant: 80ms;
+  --duration-fast:    140ms;
+  --duration-normal:  220ms;
+  --duration-slow:    360ms;
+}
+
+/* The canvas is not flat black — every screen carries a soft light wash off
+   the top edge. Defined once here so no screen reinvents it. */
+:root {
+  --gradient-canvas:
+    radial-gradient(120% 60% at 50% 0%, #23262c 0%, #101216 38%, var(--color-canvas) 72%);
+
+}

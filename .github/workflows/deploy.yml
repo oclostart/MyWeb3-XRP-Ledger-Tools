@@ -1,0 +1,92 @@
+# Builds the site and uploads it to S3 behind CloudFront, on every push to
+# main (and by hand). Vercel keeps deploying main as before; this runs beside
+# it until the AWS copy is confirmed and Vercel is disconnected.
+#
+# /api/sign runs on Lambda behind the same distribution's /api/* route:
+# api/sign.ts as Vercel runs it, through aws/sign-lambda.ts. Its environment
+# (Xaman and Upstash keys, ORIGIN_VERIFY) is set on the function, not here.
+#
+# Repository settings (Settings → Secrets and variables → Actions):
+#   secret   AWS_ROLE_ARN                 IAM role GitHub assumes through OIDC
+#   variable AWS_REGION                   e.g. us-east-1
+#   variable S3_BUCKET                    the site bucket
+#   variable CLOUDFRONT_DISTRIBUTION_ID   the distribution serving it
+#   variable SIGN_FUNCTION_NAME           the Lambda running /api/sign
+#
+# Until S3_BUCKET is set, the workflow only lints and builds.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # oxlint and the design-system check, then types and the build.
+      - run: npm run lint
+
+      - run: npm run build
+
+      - run: npm run test:api
+
+      # api/sign.ts and what it imports, bundled into one file for Lambda.
+      - name: Bundle /api/sign
+        run: |
+          npx vite build --ssr aws/sign-lambda.ts --outDir "$RUNNER_TEMP/sign"
+          cp "$RUNNER_TEMP/sign/sign-lambda.js" "$RUNNER_TEMP/index.mjs"
+          (cd "$RUNNER_TEMP" && zip -q sign-lambda.zip index.mjs)
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        if: ${{ vars.S3_BUCKET != '' }}
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Upload
+        if: ${{ vars.S3_BUCKET != '' }}
+        env:
+          BUCKET: ${{ vars.S3_BUCKET }}
+        run: |
+          # Hashed bundles: cached for a year, never deleted here, so a page
+          # still open on the last deploy keeps loading.
+          aws s3 sync dist/assets "s3://$BUCKET/assets" --cache-control "public, max-age=31536000, immutable"
+
+          # Everything else, briefly cached.
+          aws s3 sync dist "s3://$BUCKET" --delete \
+            --exclude "assets/*" --exclude "index.html" \
+            --cache-control "public, max-age=300"
+
+          # The page itself is checked every time.
+          aws s3 cp dist/index.html "s3://$BUCKET/index.html" --cache-control "no-cache"
+
+      - name: Invalidate
+        if: ${{ vars.S3_BUCKET != '' }}
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" --paths "/*"
+
+      - name: Deploy /api/sign
+        if: ${{ vars.S3_BUCKET != '' && vars.SIGN_FUNCTION_NAME != '' }}
+        env:
+          FUNCTION: ${{ vars.SIGN_FUNCTION_NAME }}
+        run: |
+          aws lambda update-function-code --function-name "$FUNCTION" --zip-file "fileb://$RUNNER_TEMP/sign-lambda.zip" --output text --query LastUpdateStatus
+          aws lambda wait function-updated-v2 --function-name "$FUNCTION"
