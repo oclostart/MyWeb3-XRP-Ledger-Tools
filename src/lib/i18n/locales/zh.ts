@@ -51,6 +51,7 @@ export const zh: Dictionary = {
       scan: '打开 {wallet} 应用并扫描此二维码。',
       openHere: '在此手机上的 {wallet} 应用中打开请求。',
       confirmHere: '请在 {wallet} 应用中确认请求。',
+      confirming: '已签名，正在 XRP Ledger 上确认…',
       open: '在 {wallet} 中打开',
       cancelledTitle: '交易已取消',
       cancelled: '没有任何更改。',

@@ -55,6 +55,7 @@ export const en = {
       scan: 'Open the {wallet} app and scan this QR code.',
       openHere: 'Open the request in the {wallet} app on this phone.',
       confirmHere: 'Confirm the request in the {wallet} app.',
+      confirming: 'Signed. Confirming on the XRP Ledger…',
       open: 'Open in {wallet}',
       cancelledTitle: 'Transaction cancelled',
       cancelled: 'Nothing was changed.',

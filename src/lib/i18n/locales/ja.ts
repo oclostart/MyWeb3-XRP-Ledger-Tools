@@ -51,6 +51,7 @@ export const ja: Dictionary = {
       scan: '{wallet} アプリを開いて、この QR コードを読み取ってください。',
       openHere: 'このスマートフォンの {wallet} アプリでリクエストを開いてください。',
       confirmHere: '{wallet} アプリでリクエストを確認してください。',
+      confirming: '署名しました。XRP Ledger で確認中…',
       open: '{wallet} で開く',
       cancelledTitle: 'トランザクションはキャンセルされました',
       cancelled: '変更はありません。',

@@ -51,6 +51,7 @@ export const es: Dictionary = {
       scan: 'Abre la app de {wallet} y escanea este código QR.',
       openHere: 'Abre la solicitud en la app de {wallet} de este teléfono.',
       confirmHere: 'Confirma la solicitud en la app {wallet}.',
+      confirming: 'Firmado. Confirmando en el XRP Ledger…',
       open: 'Abrir en {wallet}',
       cancelledTitle: 'Transacción cancelada',
       cancelled: 'No se cambió nada.',
