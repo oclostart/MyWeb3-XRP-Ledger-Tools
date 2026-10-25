@@ -156,7 +156,8 @@ export function buildSetTrustline(token: Stablecoin, account?: string): TrustSet
 //
 // ───────────────────── Xaman payload (backend only) ─────────────────────
 // Use this if the backend creates Xaman payloads directly. The API secret
-// must stay on the server (Vercel environment variables), never in the browser.
+// must stay on the server (the Lambda's environment variables; Vercel's in the
+// original plan), never in the browser.
 
 export async function createXamanPayload(
   tx: AccountSetTx | TrustSetTx,
