@@ -25,3 +25,8 @@ dist-ssr
 share
 
 dist
+
+# Secrets: never committed
+.env
+.env.*
+!.env.example

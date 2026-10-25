@@ -4,6 +4,7 @@ XRP Ledger tools under the MyWeb3.me brand: Generate SourceTag, Generate
 xrp-ledger.toml, Set Domain, Set EmailHash and Set Stablecoin Trust Lines.
 React, Vite and TypeScript on AWS, with one server function that creates
 Xaman sign requests. XRP Ledger Mainnet only. No database; nothing is logged.
+The AWS setup is in [`docs/aws.md`](docs/aws.md).
 
 ## Running it
 
@@ -28,8 +29,32 @@ npm run dev        # http://localhost:5173
 | `/xrp-ledger-toml` | Build and download an xrp-ledger.toml — in the browser |
 | `/domain` | Set or remove the account's Domain — signs with the wallet |
 | `/emailhash` | Set or remove the account's EmailHash — signs with the wallet |
+| `/trustlines` | Set trust lines for RLUSD and USDC — signs with the wallet |
+
+## Wallets
+
+All on XRPL Mainnet, with real accounts only. Every transaction carries
+MyWeb3's SourceTag, 2357011303, and counts as done only once it is in a
+validated ledger.
+
+| Wallet | How it connects | Who builds and submits the transaction | Code |
+|---|---|---|---|
+| Xaman | A sign-in request (QR code, or Open in Xaman on a phone) made by `/api/sign` | The server builds it; Xaman signs and submits | `src/features/tools/api/xaman.ts` |
+| Joey Wallet | WalletConnect v2 (Reown), chain `xrpl:0` | The page builds it; Joey fills in fee and sequence, signs and submits | `src/features/tools/api/joey.ts` |
+| Ledger | USB (WebHID) or Bluetooth (Web Bluetooth), XRP app, account `44'/144'/0'/0/0` | The page builds and fills it (fee capped at 1000 drops), the device signs, the page submits | `src/features/tools/api/ledgerWallet.ts` |
+
+- **Ledger** needs Chrome or Edge on a computer or Android; Safari and iOS
+  give pages no USB or Bluetooth, and the window says so. The person confirms
+  the address on the device when connecting, and every transaction on its
+  screen. Built with Ledger's official `@ledgerhq` libraries, not yet run on a
+  device.
+- The connected wallet is kept only in the browser (`localStorage`, plus
+  WalletConnect's own storage for Joey). No cookies, no database. Private keys
+  never leave the wallet.
 
 ## Deploying on AWS
+
+Full details, with the resources and common tasks: [`docs/aws.md`](docs/aws.md).
 
 Everything runs on AWS (us-east-1): the site in S3 behind CloudFront, and
 `/api/sign` on Lambda behind the same distribution's `/api/*` route.
@@ -61,13 +86,22 @@ Everything runs on AWS (us-east-1): the site in S3 behind CloudFront, and
 
 ## The server function
 
-`POST /api/sign` takes `{ action, value, account }` — `set_emailhash`,
-`remove_emailhash`, `set_domain`, `remove_domain` or `set_trustline` — builds
-the transaction itself with the client's helpers (`api/_lib/xrpl-transactions.ts`),
-and creates the Xaman sign request. It answers `{ uuid, link, qr, websocket }`:
-the link a phone opens, the code to scan and the live-status socket. It never
-accepts a transaction from the browser. 400 bad input, 429 rate limited,
-502 Xaman failed, 500 keys not set.
+`POST /api/sign` takes one of:
+
+- `{ action, value, account }` — `set_emailhash`, `remove_emailhash`,
+  `set_domain`, `remove_domain` or `set_trustline`. It builds the transaction
+  itself with the client's helpers (`api/_lib/xrpl-transactions.ts`) and
+  creates the Xaman sign request. It never accepts a transaction from the
+  browser.
+- `{ action: 'signin' }` — a Xaman SignIn request, which proves an account
+  without a transaction.
+- `{ status: uuid }` — where one of this app's requests has got to: opened,
+  signed, cancelled, expired, the account that signed and the transaction's
+  id. Only those fields.
+
+A request answers `{ uuid, link, qr, websocket }`: the link a phone opens, the
+code to scan and the live-status socket. 400 bad input, 410 unknown request,
+429 rate limited, 502 Xaman failed, 500 keys not set.
 
 ## History
 
