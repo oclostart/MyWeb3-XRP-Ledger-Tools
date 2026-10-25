@@ -49,7 +49,7 @@ export const en = {
       title: 'Sign with {wallet}',
       scan: 'Open the {wallet} app and scan this QR code.',
       openHere: 'Open the request in the {wallet} app on this phone.',
-      confirmIn: 'Open the {wallet} and scan this QR code.',
+      confirmHere: 'Confirm the request in the {wallet} app.',
       open: 'Open in {wallet}',
       cancelledTitle: 'Transaction cancelled',
       cancelled: 'Nothing was changed.',

@@ -1,16 +1,9 @@
 /**
  * The boundary between this frontend and the backend.
  *
- * Every network call goes through `request`. Today `USE_FIXTURES` is on and
- * feature modules resolve local data instead; when the API lands, flip the
- * flag and the feature modules call `request` — no screen changes, because no
- * screen imports data directly.
- *
- * The shapes each endpoint must satisfy are written up in
- * `docs/api-contract.md` for whoever builds the backend.
+ * Every call to the site's own API goes through `request` — today that is
+ * `/api/sign`, for Xaman. No screen imports data directly.
  */
-
-export const USE_FIXTURES = true
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api'
 

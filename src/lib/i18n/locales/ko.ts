@@ -50,7 +50,7 @@ export const ko: Dictionary = {
       title: '{wallet}로 서명',
       scan: '{wallet} 앱을 열고 이 QR 코드를 스캔하세요.',
       openHere: '이 휴대폰의 {wallet} 앱에서 요청을 여세요.',
-      confirmIn: '{wallet} 앱을 열고 이 QR 코드를 스캔하세요.',
+      confirmHere: '{wallet} 앱에서 요청을 확인하세요.',
       open: '{wallet}에서 열기',
       cancelledTitle: '거래가 취소되었습니다',
       cancelled: '변경된 내용이 없습니다.',

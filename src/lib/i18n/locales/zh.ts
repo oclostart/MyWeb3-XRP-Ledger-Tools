@@ -45,7 +45,7 @@ export const zh: Dictionary = {
       title: '使用 {wallet} 签名',
       scan: '打开 {wallet} 应用并扫描此二维码。',
       openHere: '在此手机上的 {wallet} 应用中打开请求。',
-      confirmIn: '打开 {wallet} 并扫描此二维码。',
+      confirmHere: '请在 {wallet} 应用中确认请求。',
       open: '在 {wallet} 中打开',
       cancelledTitle: '交易已取消',
       cancelled: '没有任何更改。',

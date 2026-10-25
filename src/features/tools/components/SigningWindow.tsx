@@ -25,7 +25,7 @@ export function SigningWindow({ signing }: { signing: Signing }) {
   const wallet = walletName(walletId)
   const step = run?.step
   const link = step && (step.step === 'waiting' || step.step === 'opened') ? step.link : undefined
-  const request = useWalletRequest(walletId, link, t('tools.sign.confirmIn', { wallet }))
+  const request = useWalletRequest(walletId, link, t('tools.sign.confirmHere', { wallet }))
   if (!run || !step) return null
 
   const ended = step.step === 'cancelled' || step.step === 'failed'

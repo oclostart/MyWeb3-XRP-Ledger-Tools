@@ -1,7 +1,6 @@
 /**
  * The two account fields Set Domain (T5) and Set EmailHash (T6) write, and the
- * `AccountSet` transaction that writes them — the real shape, which the
- * stand-in wallet stores and a real wallet will sign (T7).
+ * `AccountSet` transaction that writes them — the shape a wallet signs (T7).
  *
  * - `Domain` is the domain's lowercase ASCII as hex, at most 256 bytes. An
  *   empty `Domain` removes it.
@@ -101,12 +100,11 @@ export interface AccountSettings {
   emailHash: string
 }
 
-/** Applies a signed `AccountSet` to the fields it touches, as the ledger would. */
-export function applyAccountSet(settings: AccountSettings, tx: AccountSetTx): AccountSettings {
-  let emailHash = settings.emailHash
-  if (tx.EmailHash !== undefined) emailHash = tx.EmailHash === CLEARED_EMAIL_HASH ? '' : tx.EmailHash
+/** An account's two fields as `account_info` gives them: hex, absent when unset. */
+export function fromLedger(fields: { Domain?: string; EmailHash?: string }): AccountSettings {
+  const hash = fields.EmailHash?.toUpperCase() ?? ''
   return {
-    domain: tx.Domain === undefined ? settings.domain : fromHex(tx.Domain),
-    emailHash,
+    domain: fields.Domain ? fromHex(fields.Domain) : '',
+    emailHash: hash === CLEARED_EMAIL_HASH ? '' : hash,
   }
 }

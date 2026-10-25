@@ -17,7 +17,11 @@ const WINDOW_SECONDS = 60
 
 const local = new Map<string, { window: number; count: number }>()
 
-export async function rateLimited(ip: string): Promise<boolean> {
+/**
+ * `ip` is the client's IP, or the IP with a prefix for a count of its own;
+ * `limit` is how many a minute that count allows.
+ */
+export async function rateLimited(ip: string, limit = LIMIT): Promise<boolean> {
   const window = Math.floor(Date.now() / 1000 / WINDOW_SECONDS)
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
@@ -34,7 +38,7 @@ export async function rateLimited(ip: string): Promise<boolean> {
         ]),
       })
       const [first] = (await response.json()) as Array<{ result?: number }>
-      return (first?.result ?? 0) > LIMIT
+      return (first?.result ?? 0) > limit
     } catch {
       return false
     }
@@ -43,5 +47,5 @@ export async function rateLimited(ip: string): Promise<boolean> {
   const seen = local.get(ip)
   const count = seen && seen.window === window ? seen.count + 1 : 1
   local.set(ip, { window, count })
-  return count > LIMIT
+  return count > limit
 }
