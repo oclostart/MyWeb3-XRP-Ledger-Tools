@@ -145,7 +145,8 @@ async function status(uuid: string): Promise<Response> {
   } catch {
     return json(502, { error: 'Xaman could not be reached.' })
   }
-  if (res.status === 404) return json(404, { error: 'No such request' })
+  // 410, not 404: CloudFront serves the app's page for 403 and 404, which the page cannot read.
+  if (res.status === 404) return json(410, { error: 'No such request' })
   if (!res.ok) return json(502, { error: 'Xaman could not report the request.' })
   const { meta = {}, response = {} } = (await res.json()) as XamanRecord
   return json(200, {

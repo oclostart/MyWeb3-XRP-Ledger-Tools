@@ -63,7 +63,7 @@ r = await call({ status: UUID })
 check('status 200, only its fields', r.status === 200 && asked.endsWith(`/payload/${UUID}`) && JSON.stringify(r.body) === JSON.stringify({ opened: true, resolved: true, signed: true, cancelled: false, expired: false, account: ACCOUNT, txid: 'AB'.repeat(32), result: 'tesSUCCESS' }), JSON.stringify(r.body))
 check('status bad id 400', (await call({ status: '../payload' })).status === 400)
 xamanStatus = 404
-check('status unknown 404', (await call({ status: UUID })).status === 404)
+check('status unknown 410', (await call({ status: UUID })).status === 410)
 xamanStatus = 500
 check('status Xaman fails 502', (await call({ status: UUID })).status === 502)
 xamanStatus = 401
