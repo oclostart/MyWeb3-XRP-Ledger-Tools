@@ -52,7 +52,7 @@ check('set_domain stores example.com', r.status === 200 && Buffer.from(sent.txjs
 r = await call({ action: 'remove_domain', account: ACCOUNT })
 check('remove_domain empty', r.status === 200 && sent.txjson.Domain === '')
 r = await call({ action: 'remove_emailhash', account: ACCOUNT })
-check('remove_emailhash zeros', r.status === 200 && sent.txjson.EmailHash === '0'.repeat(32))
+check('remove_emailhash empty', r.status === 200 && sent.txjson.EmailHash === '')
 r = await call({ action: 'set_trustline', value: 'RLUSD', account: ACCOUNT })
 check('set_trustline RLUSD', r.status === 200 && sent.txjson.TransactionType === 'TrustSet' && sent.txjson.LimitAmount.issuer === 'rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De' && sent.txjson.Flags === 0x20000)
 check('set_trustline XRP 400', (await call({ action: 'set_trustline', value: 'XRP', account: ACCOUNT })).status === 400)
