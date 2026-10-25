@@ -1,5 +1,7 @@
 # MyWeb3.me XRPL Tools: Game Day Runbook (Vercel)
 
+> **Note (2026-10-25):** this is the original game-day plan, kept as written. The site now runs on AWS, not Vercel: S3 + CloudFront for the site, Lambda for `/api/sign`. See [`../aws.md`](../aws.md) for the current setup.
+
 Step-by-step plan to build and launch the tools during the hackathon.
 Written so a partner developer can follow it without extra context.
 
