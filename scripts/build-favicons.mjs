@@ -15,7 +15,7 @@
  * The mark is never redrawn: QuickLook renders the SVG once at 1024 and `sips`
  * scales that down, so every size is the supplied geometry. Both are macOS's
  * own tools, which is why this runs on a Mac and the output is committed —
- * Vercel's build never needs it.
+ * the deploy's build never needs it.
  *
  * The ICO holds the PNGs as they are, which every current browser reads: a
  * 6-byte header, a 16-byte entry per image, then the images.

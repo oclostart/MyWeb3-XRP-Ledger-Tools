@@ -1,13 +1,9 @@
 /**
  * About 10 sign requests a minute per IP (the client's runbook §4).
  *
- * The runbook's first choice is a Vercel Firewall rule on `/api/sign`, which
- * needs no code; this is its second, for when the plan has no such rule or as
- * a second line behind it. With `UPSTASH_REDIS_REST_URL` and
- * `UPSTASH_REDIS_REST_TOKEN` set (Upstash's free tier, from the Vercel
- * Marketplace), the count is shared by every running copy of the function.
- * Without them it is counted in memory, per copy — a soft limit, which is why
- * the firewall rule matters.
+ * With `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` set (Upstash's
+ * free tier), the count is shared by every running copy of the function.
+ * Without them it is counted in memory, per copy — a soft limit.
  *
  * It fails open: if Upstash cannot be reached, the request goes ahead rather
  * than the site refusing everyone.
@@ -17,7 +13,11 @@ const WINDOW_SECONDS = 60
 
 const local = new Map<string, { window: number; count: number }>()
 
-export async function rateLimited(ip: string): Promise<boolean> {
+/**
+ * `ip` is the client's IP, or the IP with a prefix for a count of its own;
+ * `limit` is how many a minute that count allows.
+ */
+export async function rateLimited(ip: string, limit = LIMIT): Promise<boolean> {
   const window = Math.floor(Date.now() / 1000 / WINDOW_SECONDS)
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
@@ -34,7 +34,7 @@ export async function rateLimited(ip: string): Promise<boolean> {
         ]),
       })
       const [first] = (await response.json()) as Array<{ result?: number }>
-      return (first?.result ?? 0) > LIMIT
+      return (first?.result ?? 0) > limit
     } catch {
       return false
     }
@@ -43,5 +43,5 @@ export async function rateLimited(ip: string): Promise<boolean> {
   const seen = local.get(ip)
   const count = seen && seen.window === window ? seen.count + 1 : 1
   local.set(ip, { window, count })
-  return count > LIMIT
+  return count > limit
 }

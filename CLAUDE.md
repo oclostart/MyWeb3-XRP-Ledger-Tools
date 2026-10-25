@@ -2,7 +2,7 @@
 
 A set of XRP Ledger tools under the MyWeb3.me brand: Generate SourceTag,
 Generate xrp-ledger.toml, Set Domain, Set EmailHash and Set Stablecoin Trust
-Lines. Launched at a hackathon on `myweb3.me`, on Vercel, until the full
+Lines. Launched at a hackathon on `myweb3.me`, on AWS, until the full
 MyWeb3 app takes that address; then the tools move to `tools.myweb3.me`.
 
 **Dark-only** — no light theme, no `dark:` variant, no theme switch. The build
@@ -34,7 +34,7 @@ Check `docs/component-registry.md` before creating any component. A new
 ## Layout
 
 ```
-api/                         Vercel functions — /api/sign.
+api/                         The server function — /api/sign, run on Lambda by aws/.
 src/app/                     Routing, entry.
 src/features/tools/          The tools. Self-contained.
 src/features/legal/          The Privacy and Cookies policies, in MyWeb3.me's words.
@@ -55,7 +55,7 @@ Two boundaries, both enforced by the build:
 
 ## Secrets
 
-`XAMAN_API_KEY` and `XAMAN_API_SECRET` live in Vercel's environment variables
+`XAMAN_API_KEY` and `XAMAN_API_SECRET` live in the Lambda function's environment
 and are read only by `api/`. They never take a `VITE_` prefix — anything with
 one is shipped to the browser. `VITE_WALLETCONNECT_PROJECT_ID` is public by
 design. Nothing secret is committed.
@@ -74,12 +74,11 @@ can run beside MW3's on 5173.
 
 ## Shipping
 
-`main` is production: once the client connects Vercel to this repository, a
-push to `main` deploys to `myweb3.me` by itself, with no gate after it.
+`main` is production: a push to `main` deploys to AWS
+(`.github/workflows/deploy.yml`) by itself, with no gate after it.
 
-Work goes on `dev`. Pushing it builds a preview on its own URL, and that is
-what gets looked at. Merging `dev` into `main` is the act of shipping, and it
-happens only when the founder approves it.
+Work goes on `dev` and is checked locally. Merging `dev` into `main` is the
+act of shipping, and it happens only when the founder approves it.
 
 **Commits are authored as `malikhaseebtariq`.** `user.email` is set
 repo-locally to that account's GitHub noreply address, overriding a global

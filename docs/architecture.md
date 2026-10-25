@@ -32,7 +32,7 @@ src/
     wallets/                  Supplied wallet icons, shown as given.
     tokens/                   Supplied token marks.
 
-api/                          Vercel functions — POST /api/sign.
+api/                          The server function — POST /api/sign, on Lambda.
 public/                       Served as-is: the favicon.
 docs/                         Rules, language, registry, this file.
   client/                     The client's package, as supplied.

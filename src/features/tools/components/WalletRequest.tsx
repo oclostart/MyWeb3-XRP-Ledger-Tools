@@ -3,10 +3,14 @@ import { Button, QrDisplay, buttonVariants } from '@/components/ui'
 import { useT } from '@/lib/i18n'
 import { useMinWidth } from '@/lib/useMediaQuery'
 import xamanMark from '@/assets/wallets/xaman.svg'
+import joeyMark from '@/assets/wallets/joey.svg'
 import { walletName, type WalletId } from '../api/wallet'
 
 /** The code's width — its plate, at 200, holds the 2xs window's middle. */
 const QR = 176
+
+/** Joey's own link (it has no https one): with a pairing link to pair, bare to bring the app up. */
+const JOEY_APP = 'joey://settings/wc'
 
 /**
  * A request waiting in a wallet, as a window shows it — the one layout for
@@ -21,7 +25,13 @@ const QR = 176
  * - **Xaman on a phone**: a phone cannot scan its own screen, so no code — the
  *   line says to open the request here, and Open in Xaman is the window's
  *   button.
- * - **Joey Wallet** asks in its own app: `confirm` is the line saying so.
+ * - **Joey Wallet, pairing** (`pairing`): the same, the code being its
+ *   WalletConnect link with Joey's mark, and `confirm` the line over it. On a
+ *   phone the button opens it in Joey (`joey://`). No link under the code:
+ *   Joey has no desktop app to open it in.
+ * - **Joey Wallet, signing** asks in its own app over the connection it has:
+ *   `confirm` is the line saying so, and on a phone a button brings Joey up.
+ * - **Ledger** asks on the device's own screen: only the line saying so.
  *
  * Returns the window's subtitle, body and footer, for the caller's `Modal`.
  */
@@ -29,12 +39,29 @@ export function useWalletRequest(
   walletId: WalletId,
   link: string | undefined,
   confirm: string,
+  pairing = false,
 ): { line: string; body: ReactNode; footer: ReactNode } {
   const t = useT()
   const desktop = useMinWidth('sm')
   const wallet = walletName(walletId)
+  const joey = walletId === 'joey'
 
-  if (walletId !== 'xaman') return { line: confirm, body: null, footer: undefined }
+  // A Ledger asks on its own screen: nothing to scan or open.
+  if (walletId === 'ledger') return { line: t('tools.wallet.confirmOnDevice'), body: null, footer: undefined }
+
+  if (joey && !pairing) {
+    return {
+      line: confirm,
+      body: null,
+      footer: desktop ? undefined : (
+        <a href={JOEY_APP} className={buttonVariants()}>
+          {t('tools.sign.open', { wallet })}
+        </a>
+      ),
+    }
+  }
+
+  const href = joey && link ? `${JOEY_APP}?uri=${encodeURIComponent(link)}` : link
 
   if (!desktop) {
     return {
@@ -42,8 +69,8 @@ export function useWalletRequest(
       body: null,
       // A real link, so the phone hands it to the wallet app. Held off, not
       // hidden, until the request exists, so the window keeps its shape.
-      footer: link ? (
-        <a href={link} target="_blank" rel="noreferrer" className={buttonVariants()}>
+      footer: href ? (
+        <a href={href} target={joey ? undefined : '_blank'} rel="noreferrer" className={buttonVariants()}>
           {t('tools.sign.open', { wallet })}
         </a>
       ) : (
@@ -53,19 +80,19 @@ export function useWalletRequest(
   }
 
   return {
-    line: t('tools.sign.scan', { wallet }),
+    line: joey ? confirm : t('tools.sign.scan', { wallet }),
     footer: undefined,
     body: (
       <div className="flex flex-col items-center gap-4">
         {link ? (
-          <QrDisplay value={link} label={t('tools.sign.qr', { wallet })} size={QR} logo={xamanMark} />
+          <QrDisplay value={link} label={t('tools.sign.qr', { wallet })} size={QR} logo={joey ? joeyMark : xamanMark} />
         ) : (
           // The plate, empty, while the request is made.
           <div aria-hidden className="rounded-xl bg-surface-inverse p-3">
             <div className="size-44" />
           </div>
         )}
-        {link ? (
+        {joey ? null : link ? (
           <a
             href={link}
             target="_blank"

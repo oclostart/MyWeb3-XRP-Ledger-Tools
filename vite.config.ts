@@ -25,6 +25,15 @@ export default defineConfig({
       'class-variance-authority',
     ],
   },
+  /**
+   * In development, `/api` is the live one: `/api/sign` runs only on Lambda,
+   * behind the site, where Xaman's keys are — none are kept on this machine.
+   */
+  server: {
+    proxy: {
+      '/api': { target: 'https://www.myweb3.me', changeOrigin: true },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

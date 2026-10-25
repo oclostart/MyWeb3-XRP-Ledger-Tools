@@ -4,7 +4,17 @@ import { Button, Modal } from '@/components/ui'
 import { useT } from '@/lib/i18n'
 import xamanMark from '@/assets/wallets/xaman.svg'
 import joeyMark from '@/assets/wallets/joey.svg'
-import { WALLETS, connectWallet, walletName, walletShortName, type ConnectStep, type WalletId } from '../api/wallet'
+import ledgerMark from '@/assets/wallets/ledger.svg'
+import {
+  WALLETS,
+  connectWallet,
+  walletName,
+  walletShortName,
+  type ConnectStep,
+  type LedgerLink,
+  type WalletId,
+} from '../api/wallet'
+import { ledgerLinks, preloadLedger } from '../api/ledgerWallet'
 import { closeWalletPicker, takeDestination, useWalletPickerOpen } from './pickerState'
 import { useWalletRequest } from './WalletRequest'
 
@@ -12,6 +22,7 @@ import { useWalletRequest } from './WalletRequest'
 const MARKS: Record<WalletId, string> = {
   xaman: xamanMark,
   joey: joeyMark,
+  ledger: ledgerMark,
 }
 
 export interface WalletPickerProps {
@@ -21,8 +32,12 @@ export interface WalletPickerProps {
   onConnected?: () => void
 }
 
-/** A sign-in under way: the wallet chosen and how far it has got, or that it failed. */
-type Run = { wallet: WalletId; step: ConnectStep | { step: 'failed' } }
+/**
+ * A sign-in under way: the wallet chosen and how far it has got, or that it
+ * failed. A Ledger first waits on `link`, the person's choice of USB or
+ * Bluetooth.
+ */
+type Run = { wallet: WalletId; via?: LedgerLink; step: ConnectStep | { step: 'failed' } | { step: 'link' } }
 
 /**
  * The Wallet window (T2; titled Select Wallet until R1, 2026-10-13): the
@@ -38,6 +53,11 @@ type Run = { wallet: WalletId; step: ConnectStep | { step: 'failed' } }
  * window's own. Joey Wallet is told to confirm in its app. It used to connect
  * at once under "Opening Xaman…". Closing the window withdraws the request; a
  * failure offers Try again.
+ *
+ * **Ledger** (client, 2026-10-25) asks first how to reach the device — USB or
+ * Bluetooth, whichever this browser offers — since the browser lets a page
+ * ask for a device only straight after a click. A browser with neither says
+ * to use Chrome or Edge on a computer.
  *
  * The marks are each wallet's own icon, supplied as artwork in its own
  * colours (2026-10-08). Both are trademarks, so they are shown exactly as
@@ -70,11 +90,18 @@ export function WalletPicker({ open, onClose, onConnected }: WalletPickerProps) 
   }
 
   const choose = (wallet: WalletId) => {
+    if (wallet !== 'ledger') return connect(wallet)
+    withdraw()
+    preloadLedger()
+    setRun({ wallet, step: { step: 'link' } })
+  }
+
+  const connect = (wallet: WalletId, via?: LedgerLink) => {
     withdraw()
     const controller = new AbortController()
     request.current = controller
-    setRun({ wallet, step: { step: 'preparing' } })
-    connectWallet(wallet, (step) => !controller.signal.aborted && setRun({ wallet, step }), controller.signal)
+    setRun({ wallet, via, step: { step: 'preparing' } })
+    connectWallet(wallet, (step) => !controller.signal.aborted && setRun({ wallet, via, step }), controller.signal, via)
       .then(() => {
         if (controller.signal.aborted) return
         request.current = null
@@ -82,14 +109,14 @@ export function WalletPicker({ open, onClose, onConnected }: WalletPickerProps) 
         done()
       })
       .catch((error: Error) => {
-        if (error.name !== 'AbortError') setRun({ wallet, step: { step: 'failed' } })
+        if (error.name !== 'AbortError') setRun({ wallet, via, step: { step: 'failed' } })
       })
   }
 
   const step = run?.step
   const link = step && (step.step === 'waiting' || step.step === 'opened') ? step.link : undefined
   const wallet = walletName(run?.wallet ?? 'xaman')
-  const sign = useWalletRequest(run?.wallet ?? 'xaman', link, t('tools.wallet.confirmIn', { wallet }))
+  const sign = useWalletRequest(run?.wallet ?? 'xaman', link, t('tools.wallet.confirmIn', { wallet }), true)
 
   if (run && step?.step === 'failed') {
     return (
@@ -98,11 +125,42 @@ export function WalletPicker({ open, onClose, onConnected }: WalletPickerProps) 
         onClose={close}
         title={t('tools.wallet.connectTitle', { wallet: walletShortName(run.wallet) })}
         size="2xs"
-        footer={<Button onClick={() => choose(run.wallet)}>{t('tools.sign.tryAgain')}</Button>}
+        footer={<Button onClick={() => connect(run.wallet, run.via)}>{t('tools.sign.tryAgain')}</Button>}
       >
         <p role="alert" className="text-center type-body text-text-muted">
           {t('common.error')}
         </p>
+      </Modal>
+    )
+  }
+
+  if (run && step?.step === 'link') {
+    const links = ledgerLinks()
+    return (
+      <Modal
+        open={open}
+        onClose={close}
+        title={t('tools.wallet.connectTitle', { wallet: walletShortName(run.wallet) })}
+        subtitle={links.length ? t('tools.wallet.confirmOnDevice') : undefined}
+        subtitleTone="default"
+        size="2xs"
+        footer={
+          links.length ? (
+            <div className="flex justify-center gap-3">
+              {links.map((via) => (
+                <Button key={via} onClick={() => connect('ledger', via)}>
+                  {t(via === 'usb' ? 'tools.wallet.viaUsb' : 'tools.wallet.viaBluetooth')}
+                </Button>
+              ))}
+            </div>
+          ) : undefined
+        }
+      >
+        {links.length ? null : (
+          <p role="alert" className="text-center type-body text-text-muted">
+            {t('tools.wallet.ledgerBrowser')}
+          </p>
+        )}
       </Modal>
     )
   }
