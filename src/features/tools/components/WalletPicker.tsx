@@ -146,7 +146,8 @@ export function WalletPicker({ open, onClose, onConnected }: WalletPickerProps) 
         size="2xs"
         footer={
           links.length ? (
-            <div className="flex justify-center gap-3">
+            // Columns of one width, the wider label's, so USB and Bluetooth are the same size.
+            <div className="mx-auto grid w-fit auto-cols-fr grid-flow-col gap-3">
               {links.map((via) => (
                 <Button key={via} onClick={() => connect('ledger', via)}>
                   {t(via === 'usb' ? 'tools.wallet.viaUsb' : 'tools.wallet.viaBluetooth')}
