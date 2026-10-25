@@ -283,6 +283,8 @@ export function useAccount(address: string | undefined) {
     queryKey: accountKey(address ?? ''),
     queryFn: () => api.readAccount(address ?? ''),
     enabled: Boolean(address),
+    // Each read already falls back to a second node; one more try is enough before the page gives up.
+    retry: 1,
   })
 }
 

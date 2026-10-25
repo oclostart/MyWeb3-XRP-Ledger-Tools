@@ -35,15 +35,35 @@ interface NodeResult {
   error?: string
 }
 
+/**
+ * How long `xrplcluster.com` is given before `s1` is asked instead: a request
+ * a network or blocker holds open, never answered, would otherwise leave the
+ * page loading for good (client, 2026-10-25).
+ */
+const HTTP_TIMEOUT_MS = 6_000
+
 async function overHttp(method: string, params: object, signal?: AbortSignal): Promise<unknown> {
-  const response = await fetch(NODE, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ method, params: [params] }),
-    signal,
-  })
-  if (!response.ok) throw new Error(`${method} answered ${response.status}`)
-  return ((await response.json()) as { result?: unknown }).result
+  const controller = new AbortController()
+  const withdraw = () => controller.abort()
+  signal?.addEventListener('abort', withdraw, { once: true })
+  const timer = setTimeout(withdraw, HTTP_TIMEOUT_MS)
+  try {
+    const response = await fetch(NODE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ method, params: [params] }),
+      signal: controller.signal,
+    })
+    if (!response.ok) throw new Error(`${method} answered ${response.status}`)
+    return ((await response.json()) as { result?: unknown }).result
+  } catch (error) {
+    // Only the caller's own withdrawal is an AbortError; a timeout is a node that did not answer.
+    if (signal?.aborted || (error as Error).name !== 'AbortError') throw error
+    throw new Error(`${method} timed out`)
+  } finally {
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', withdraw)
+  }
 }
 
 function overSocket(method: string, params: object, signal?: AbortSignal): Promise<unknown> {
@@ -70,6 +90,9 @@ function overSocket(method: string, params: object, signal?: AbortSignal): Promi
   })
 }
 
+/** Set once `xrplcluster.com` fails: every later command this visit goes straight to `s1`, not waiting out the timeout again. */
+let httpUnreachable = false
+
 /**
  * One command to Mainnet: `xrplcluster.com` first, `s1` if it cannot be
  * reached. A command the ledger itself refuses throws a `LedgerError`; it is
@@ -78,9 +101,11 @@ function overSocket(method: string, params: object, signal?: AbortSignal): Promi
 export async function ledgerRequest<T>(method: string, params: object, signal?: AbortSignal): Promise<T> {
   let result: unknown
   try {
+    if (httpUnreachable) throw new Error('xrplcluster.com did not answer earlier this visit')
     result = await overHttp(method, params, signal)
   } catch (error) {
     if ((error as Error).name === 'AbortError') throw error
+    httpUnreachable = true
     result = await overSocket(method, params, signal)
   }
   const answer = (result ?? {}) as NodeResult
