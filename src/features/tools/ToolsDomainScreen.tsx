@@ -56,7 +56,7 @@ export function ToolsDomainScreen() {
           placeholder="example.com"
           normalise={normaliseDomainInput}
           holdUntilValid
-          current={account.isPending ? undefined : (domain ?? '')}
+          current={domain}
           currentTitle={t('tools.domain.current')}
           notSet={t('tools.domain.notSet')}
           setLabel={t('tools.domain.set')}
