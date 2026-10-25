@@ -1,9 +1,8 @@
 # Builds the site and uploads it to S3 behind CloudFront, on every push to
-# main (and by hand). Vercel keeps deploying main as before; this runs beside
-# it until the AWS copy is confirmed and Vercel is disconnected.
+# main (and by hand).
 #
 # /api/sign runs on Lambda behind the same distribution's /api/* route:
-# api/sign.ts as Vercel runs it, through aws/sign-lambda.ts. Its environment
+# api/sign.ts, through aws/sign-lambda.ts. Its environment
 # (Xaman and Upstash keys, ORIGIN_VERIFY) is set on the function, not here.
 #
 # Repository settings (Settings → Secrets and variables → Actions):

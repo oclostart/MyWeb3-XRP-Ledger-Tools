@@ -4,7 +4,7 @@ The authoritative inventory for **MyWeb3.me Tools**. If something is not here,
 it is not agreed — add it here before building it.
 
 A set of XRP Ledger tools under the MyWeb3.me brand, launched at a hackathon on
-`myweb3.me` and hosted on Vercel until the full MyWeb3 app takes that address;
+`myweb3.me` and hosted on AWS until the full MyWeb3 app takes that address;
 the tools then move to `tools.myweb3.me`. The tools were first built inside
 the MW3 app (XRPL.directory's repository) from 2026-10-06, and lifted into
 this repository on 2026-10-12 — section H.
@@ -23,7 +23,7 @@ Status: `done` · `planned` · `blocked` (waits on the client) · `open` (needs 
 
 | | |
 |---|---|
-| Hosting | Vercel: the static site and one function, `POST /api/sign`. Deploys from GitHub |
+| Hosting | AWS: the static site on S3 and CloudFront, and one function, `POST /api/sign`, on Lambda. Deploys from GitHub |
 | Network | XRP Ledger Mainnet only (OT3, resolved by the client's runbook). Reads from a public node |
 | Wallets | Xaman and Joey Wallet, through `xrpl-connect`. Xaman sign requests are made on the server, so its secret never reaches the browser |
 | Every transaction | Carries MyWeb3's SourceTag, `2357011303` |
@@ -58,7 +58,7 @@ Status: `done` · `planned` · `blocked` (waits on the client) · `open` (needs 
 | H9 | Home and header | Signed out, the browser tools read Access and the wallet tools Connect; signed in, every card reads Access — as built since T1. The connected address and Disconnect stay in the hub's Account card, which the owner reviewed, rather than on hover. Header logo `myweb3-extended-white.svg`, cropped to its artwork, 46 tall from `sm` (251 wide) and 28 on a phone; favicon `myweb3-favicon.svg`, the white logo on a black circle; the page is titled MyWeb3.me Tools. Built 2026-10-12 | **done** |
 | H10 | `/api/sign` | `api/sign.ts`: `POST { action, value, account }`; builds the transaction on the server with the client's helpers (`api/_lib/xrpl-transactions.ts` — one change, `generateSourceTag` strips `www.` per decision A) and creates the Xaman sign request, answering `{ uuid, link, qr, websocket }`. POST only; 400 bad input, 429 rate limited, 502 Xaman failed, 500 keys missing. Rate limit 10 a minute per IP (`api/_lib/rate-limit.ts`): Upstash when set, in memory otherwise, behind the firewall rule. `npm run test:api` checks it all with Xaman stood in — 17 checks, including the runbook's tests 3 and 12. Built 2026-10-12 | **done** — live calls wait on the Xaman key and secret |
 | H11 | Real wallets | `xrpl-connect`: Xaman, and Joey over WalletConnect | blocked — Xaman key and secret, WalletConnect project ID |
-| H12 | Launch | Rehearsal on a test address, taken down, set up again on the day at `myweb3.me` — the client's runbook, done by the client on their Vercel account. The README carries the steps. The repository keeps its real history; work done before the event is listed in the README | blocked — the client's accounts |
+| H12 | Launch | Rehearsal on a test address, taken down, set up again on the day at `myweb3.me` — the client's runbook, on AWS. The README carries the steps. The repository keeps its real history; work done before the event is listed in the README | blocked — the client's accounts |
 
 ## C. The client's change list and the updated Canva — 2026-10-12
 

@@ -1,16 +1,14 @@
 /**
- * Runs api/sign.ts on AWS Lambda, behind CloudFront's /api/* route, doing
- * only what Vercel does around it: turn the request into a web `Request`,
- * call the handler for its method, and pass the `Response` back.
+ * Runs api/sign.ts on AWS Lambda, behind CloudFront's /api/* route: turns
+ * the request into a web `Request`, calls the handler for its method, and
+ * passes the `Response` back.
  *
- * Two things Vercel does by itself are done here:
+ * Two things a hosting platform would otherwise do are done here:
  * - The function is reachable only through the site. CloudFront sends
  *   `x-origin-verify` with a secret the function holds (`ORIGIN_VERIFY`);
  *   a request without it is refused, so nobody calls the function URL direct.
  * - `x-real-ip` is the visitor's address, set from CloudFront's
  *   `cloudfront-viewer-address`, never taken from the visitor's own headers.
- *
- * The handler itself is unchanged; Vercel keeps running the same file.
  */
 import * as sign from '../api/sign.js'
 
