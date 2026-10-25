@@ -14,6 +14,7 @@ export const en = {
     loading: 'Loading…',
     error: 'Something went wrong.',
     retry: 'Try again',
+    accountUnread: 'Your account could not be read from the XRP Ledger.',
     empty: 'Nothing to show yet.',
     start: 'Start',
     end: 'End',

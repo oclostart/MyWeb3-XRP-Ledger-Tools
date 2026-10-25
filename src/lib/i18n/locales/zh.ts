@@ -11,6 +11,7 @@ export const zh: Dictionary = {
     loading: '加载中…',
     error: '出错了。',
     retry: '重试',
+    accountUnread: '无法从 XRP Ledger 读取你的账户。',
     empty: '暂无内容。',
     start: '首页',
     end: '末页',

@@ -11,6 +11,7 @@ export const ja: Dictionary = {
     loading: '読み込み中…',
     error: '問題が発生しました。',
     retry: '再試行',
+    accountUnread: 'XRP Ledger からアカウントを読み込めませんでした。',
     empty: '表示できるものがありません。',
     start: '最初',
     end: '最後',

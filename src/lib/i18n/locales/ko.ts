@@ -16,6 +16,7 @@ export const ko: Dictionary = {
     loading: '불러오는 중…',
     error: '문제가 발생했습니다.',
     retry: '다시 시도',
+    accountUnread: 'XRP Ledger에서 계정을 읽을 수 없습니다.',
     empty: '아직 표시할 내용이 없습니다.',
     start: '처음',
     end: '끝',

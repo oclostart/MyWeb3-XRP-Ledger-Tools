@@ -69,7 +69,7 @@ export function ToolsTrustLinesScreen() {
                       <p className="type-label-md text-text">
                         {t('tools.trustLines.label')}
                       </p>
-                      {account.isPending ? (
+                      {!account.data ? (
                         <p className="flex h-(--size-control-md) items-center type-caption text-text-subtle">
                           {t('common.loading')}
                         </p>

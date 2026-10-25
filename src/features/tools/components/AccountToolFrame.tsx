@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
-import { PageHeader, ParticlesField } from '@/components/ui'
+import { Button, PageHeader, ParticlesField } from '@/components/ui'
+import { useT } from '@/lib/i18n'
 import { PATHS } from '@/app/routes'
-import { useWalletSession, type WalletSession } from '../api/wallet'
+import { useAccount, useWalletSession, type WalletSession } from '../api/wallet'
 import { ToolsShell } from './ToolsShell'
 
 /**
@@ -34,7 +35,9 @@ export function AccountToolFrame({
   measure?: 'default' | 'wide'
   children: (session: WalletSession) => ReactNode
 }) {
+  const t = useT()
   const session = useWalletSession()
+  const account = useAccount(session?.address)
   if (!session) return <Navigate to={PATHS.home} replace />
 
   return (
@@ -52,6 +55,17 @@ export function AccountToolFrame({
           the first one apart. The cards keep their own widths inside it. */}
       <section className="mx-auto flex w-full max-w-4xl flex-col items-center gap-8 pt-4 pb-6">
         <PageHeader title={title} lede={lede} measure={measure} />
+
+        {/* A read that failed says so, rather than leave the tool on Loading
+            or show the account as having nothing set (client, 2026-10-25). */}
+        {account.isError && !account.data && (
+          <div className="flex flex-col items-center gap-2 text-center">
+            <p className="type-body text-text-muted">{t('common.accountUnread')}</p>
+            <Button size="sm" onClick={() => void account.refetch()}>
+              {t('common.retry')}
+            </Button>
+          </div>
+        )}
 
         <div className="flex w-full flex-col items-center gap-6">{children(session)}</div>
       </section>

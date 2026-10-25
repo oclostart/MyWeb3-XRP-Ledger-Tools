@@ -11,6 +11,7 @@ export const es: Dictionary = {
     loading: 'Cargando…',
     error: 'Algo salió mal.',
     retry: 'Reintentar',
+    accountUnread: 'No se pudo leer tu cuenta del XRP Ledger.',
     empty: 'Todavía no hay nada que mostrar.',
     start: 'Inicio',
     end: 'Fin',
