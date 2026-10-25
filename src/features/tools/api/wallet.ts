@@ -5,8 +5,9 @@ import { toTrustSetTx, type Stablecoin } from '../data/trustLines'
 import { readAccount, waitForValidated, type AccountState } from './ledger'
 import { connectXaman, signXaman } from './xaman'
 import { connectJoey, disconnectJoey, signJoey, watchJoey } from './joey'
+import { connectLedger, disconnectLedger, signLedger, type LedgerLink } from './ledgerWallet'
 
-export type { AccountState }
+export type { AccountState, LedgerLink }
 
 /**
  * Wallets, and the ledger reads and writes that go through them — on XRPL
@@ -16,13 +17,16 @@ export type { AccountState }
  * - **Xaman** signs in and signs through `/api/sign` (H10): the server makes
  *   each request with MyWeb3's key and builds the transaction (`xaman.ts`).
  * - **Joey Wallet** pairs over WalletConnect and signs the transaction built
- *   here (H11, `joey.ts`). Both carry MyWeb3's SourceTag.
+ *   here (H11, `joey.ts`).
+ * - **Ledger** signs on the device, over USB or Bluetooth, the transaction
+ *   built here; the page submits it (`ledgerWallet.ts`). All three carry
+ *   MyWeb3's SourceTag.
  * - **Reads** come from a public node (`ledger.ts`), and a signature counts
  *   only once its transaction is in a validated ledger.
  *
  * Screens only ever see `WalletApi`.
  */
-export type WalletId = 'xaman' | 'joey'
+export type WalletId = 'xaman' | 'joey' | 'ledger'
 
 /**
  * `name` is the wallet's own, under its icon and in the lines that point to
@@ -32,6 +36,7 @@ export type WalletId = 'xaman' | 'joey'
 export const WALLETS: ReadonlyArray<{ id: WalletId; name: string; short: string }> = [
   { id: 'xaman', name: 'Xaman', short: 'Xaman' },
   { id: 'joey', name: 'Joey Wallet', short: 'Joey' },
+  { id: 'ledger', name: 'Ledger', short: 'Ledger' },
 ]
 
 export const walletName = (id: WalletId) => WALLETS.find((w) => w.id === id)?.name ?? id
@@ -42,6 +47,8 @@ export const walletShortName = (id: WalletId) => WALLETS.find((w) => w.id === id
 export interface WalletSession {
   wallet: WalletId
   address: string
+  /** How a Ledger is reached — the link it was connected over. */
+  via?: LedgerLink
 }
 
 /**
@@ -84,7 +91,12 @@ export interface WalletApi {
    * Signs the person in, reporting each step, and settles with the session —
    * or rejects, with an `AbortError` when the signal withdraws the request.
    */
-  connect(wallet: WalletId, onStep: (step: ConnectStep) => void, signal: AbortSignal): Promise<WalletSession>
+  connect(
+    wallet: WalletId,
+    onStep: (step: ConnectStep) => void,
+    signal: AbortSignal,
+    via?: LedgerLink,
+  ): Promise<WalletSession>
   readAccount(address: string): Promise<AccountState>
   /**
    * Asks the wallet to sign, reporting each step, and settles once the ledger
@@ -96,7 +108,7 @@ export interface WalletApi {
 
 // ── The wallets ──────────────────────────────────────────────────────────
 
-/** The transaction Joey Wallet is asked to sign; Xaman's is built on the server from the same request. */
+/** The transaction Joey Wallet and Ledger are asked to sign; Xaman's is built on the server from the same request. */
 function toTransaction(address: string, request: SignRequest) {
   if (request.action === 'set_trustline') return toTrustSetTx(address, request.value)
   const change: AccountChange =
@@ -111,8 +123,13 @@ function toTransaction(address: string, request: SignRequest) {
 }
 
 const real: WalletApi = {
-  async connect(wallet, onStep, signal) {
+  async connect(wallet, onStep, signal, via) {
     onStep({ step: 'preparing' })
+    if (wallet === 'ledger') {
+      if (!via) throw new Error('A Ledger connects over USB or Bluetooth')
+      onStep({ step: 'waiting' })
+      return { wallet, address: await connectLedger(via, signal), via }
+    }
     const address =
       wallet === 'xaman'
         ? await connectXaman(({ link, opened }) => onStep({ step: opened ? 'opened' : 'waiting', link }), signal)
@@ -131,6 +148,10 @@ const real: WalletApi = {
           ({ link, opened }) => onStep({ step: opened ? 'opened' : 'waiting', link }),
           signal,
         )
+      } else if (session.wallet === 'ledger') {
+        if (!session.via) throw new Error('No Ledger link kept; connect again')
+        onStep({ step: 'waiting' })
+        txid = await signLedger(session.address, session.via, toTransaction(session.address, request), signal)
       } else {
         onStep({ step: 'waiting' })
         txid = await signJoey(session.address, toTransaction(session.address, request), signal)
@@ -173,7 +194,9 @@ if (typeof window !== 'undefined') {
 function readSession(): WalletSession | null {
   try {
     const saved = JSON.parse(localStorage.getItem(SESSION_KEY) ?? 'null') as WalletSession | null
-    return saved && WALLETS.some((w) => w.id === saved.wallet) && saved.address ? saved : null
+    if (!saved || !WALLETS.some((w) => w.id === saved.wallet) || !saved.address) return null
+    if (saved.wallet === 'ledger' && saved.via !== 'usb' && saved.via !== 'bluetooth') return null
+    return saved
   } catch {
     return null
   }
@@ -215,10 +238,16 @@ export function useWalletSession(): WalletSession | null {
 
 /**
  * Signs in with `wallet`, reporting each step to the Wallet window, and keeps
- * the session once it lands. Aborting the signal withdraws the request.
+ * the session once it lands. A Ledger needs `via`, the link to reach it over.
+ * Aborting the signal withdraws the request.
  */
-export async function connectWallet(wallet: WalletId, onStep: (step: ConnectStep) => void, signal: AbortSignal) {
-  const session = await api.connect(wallet, onStep, signal)
+export async function connectWallet(
+  wallet: WalletId,
+  onStep: (step: ConnectStep) => void,
+  signal: AbortSignal,
+  via?: LedgerLink,
+) {
+  const session = await api.connect(wallet, onStep, signal, via)
   setSession(session)
   if (wallet === 'joey') watchJoeySessions()
   return session
@@ -226,6 +255,7 @@ export async function connectWallet(wallet: WalletId, onStep: (step: ConnectStep
 
 export function disconnectWallet() {
   if (session?.wallet === 'joey') disconnectJoey(session.address)
+  if (session?.wallet === 'ledger') disconnectLedger()
   setSession(null)
 }
 

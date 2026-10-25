@@ -31,6 +31,7 @@ const JOEY_APP = 'joey://settings/wc'
  *   Joey has no desktop app to open it in.
  * - **Joey Wallet, signing** asks in its own app over the connection it has:
  *   `confirm` is the line saying so, and on a phone a button brings Joey up.
+ * - **Ledger** asks on the device's own screen: only the line saying so.
  *
  * Returns the window's subtitle, body and footer, for the caller's `Modal`.
  */
@@ -44,6 +45,9 @@ export function useWalletRequest(
   const desktop = useMinWidth('sm')
   const wallet = walletName(walletId)
   const joey = walletId === 'joey'
+
+  // A Ledger asks on its own screen: nothing to scan or open.
+  if (walletId === 'ledger') return { line: t('tools.wallet.confirmOnDevice'), body: null, footer: undefined }
 
   if (joey && !pairing) {
     return {

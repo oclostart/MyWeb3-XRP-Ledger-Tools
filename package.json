@@ -12,8 +12,13 @@
     "test:api": "tsx scripts/test-api.ts"
   },
   "dependencies": {
+    "@ledgerhq/hw-app-xrp": "6.38.0",
+    "@ledgerhq/hw-transport": "6.36.1",
+    "@ledgerhq/hw-transport-web-ble": "6.35.0",
+    "@ledgerhq/hw-transport-webhid": "6.36.0",
     "@tanstack/react-query": "^5.102.1",
     "@walletconnect/sign-client": "2.26.0",
+    "buffer": "6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "country-flag-icons": "^1.6.20",
@@ -21,6 +26,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
+    "ripple-binary-codec": "2.11.0",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
