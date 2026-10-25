@@ -1,5 +1,9 @@
 // MyWeb3.me XRPL Tools: Hackathon Infrastructure
 //
+// Note (2026-10-25): the original plan, kept as written. Hosting moved from
+// Vercel to AWS: S3 + CloudFront (site), Lambda (POST /api/sign), deploys via
+// GitHub Actions. Current setup: docs/aws.md.
+//
 // ── SERVICES ──
 // - GitHub: repo (linked to Vercel)
 // - Bluehost: domain + DNS pointer (DNS access)
