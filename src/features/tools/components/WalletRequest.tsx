@@ -22,6 +22,7 @@ const QR = 176
  *   line says to open the request here, and Open in Xaman is the window's
  *   button.
  * - **Joey Wallet** asks in its own app: `confirm` is the line saying so.
+ * - **Ledger** asks on the device itself, plugged in: no code, no link.
  *
  * Returns the window's subtitle, body and footer, for the caller's `Modal`.
  */
@@ -34,6 +35,7 @@ export function useWalletRequest(
   const desktop = useMinWidth('sm')
   const wallet = walletName(walletId)
 
+  if (walletId === 'ledger') return { line: t('tools.wallet.confirmOnDevice'), body: null, footer: undefined }
   if (walletId !== 'xaman') return { line: confirm, body: null, footer: undefined }
 
   if (!desktop) {

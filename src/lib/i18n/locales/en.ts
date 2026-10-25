@@ -42,6 +42,7 @@ export const en = {
       connectWallet: 'Connect Wallet',
       connectTitle: 'Connect with {wallet}',
       confirmIn: 'Open the {wallet} and scan this QR code.',
+      confirmOnDevice: 'Connect your Ledger, open the XRP app and confirm.',
       disconnect: 'Disconnect',
       disconnectAccount: 'Disconnect {address}',
     },

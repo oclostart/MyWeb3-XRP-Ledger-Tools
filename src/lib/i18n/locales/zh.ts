@@ -38,6 +38,7 @@ export const zh: Dictionary = {
       connectWallet: '连接钱包',
       connectTitle: '使用 {wallet} 连接',
       confirmIn: '打开 {wallet} 并扫描此二维码。',
+      confirmOnDevice: '连接您的 Ledger，打开 XRP 应用并确认。',
       disconnect: '断开连接',
       disconnectAccount: '断开 {address}',
     },

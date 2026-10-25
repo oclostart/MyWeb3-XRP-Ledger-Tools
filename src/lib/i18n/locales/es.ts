@@ -38,6 +38,7 @@ export const es: Dictionary = {
       connectWallet: 'Conectar billetera',
       connectTitle: 'Conectar con {wallet}',
       confirmIn: 'Abre {wallet} y escanea este código QR.',
+      confirmOnDevice: 'Conecta tu Ledger, abre la app XRP y confirma.',
       disconnect: 'Desconectar',
       disconnectAccount: 'Desconectar {address}',
     },

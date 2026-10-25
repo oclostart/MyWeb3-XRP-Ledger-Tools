@@ -14,7 +14,7 @@ import { STABLECOIN_IDS, isStablecoin, type Stablecoin } from '../data/trustLine
  * H11 replace `standIn` with `/api/sign` for Xaman, `xrpl-connect` for Joey
  * Wallet and a public node for reads, without a screen changing.
  */
-export type WalletId = 'xaman' | 'joey'
+export type WalletId = 'xaman' | 'joey' | 'ledger'
 
 /**
  * `name` is the wallet's own, under its icon and in the lines that point to
@@ -24,6 +24,7 @@ export type WalletId = 'xaman' | 'joey'
 export const WALLETS: ReadonlyArray<{ id: WalletId; name: string; short: string }> = [
   { id: 'xaman', name: 'Xaman', short: 'Xaman' },
   { id: 'joey', name: 'Joey Wallet', short: 'Joey' },
+  { id: 'ledger', name: 'Ledger', short: 'Ledger' },
 ]
 
 export const walletName = (id: WalletId) => WALLETS.find((w) => w.id === id)?.name ?? id
@@ -96,6 +97,7 @@ export interface WalletApi {
 const DEMO_ADDRESS: Record<WalletId, string> = {
   xaman: 'rasda7ad71d1877827d171jv3kj2jkkvj1z',
   joey: 'rjoeyd71d1877827d171jv3kj2jkkvj1z',
+  ledger: 'rledgerd71d1877827d171jv3kj2jkkvj1',
 }
 
 const LEDGER_KEY = 'myweb3.tools.standInLedger'

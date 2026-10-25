@@ -43,6 +43,7 @@ export const ko: Dictionary = {
       connectWallet: '지갑 연결',
       connectTitle: '{wallet}로 연결',
       confirmIn: '{wallet} 앱을 열고 이 QR 코드를 스캔하세요.',
+      confirmOnDevice: 'Ledger를 연결하고 XRP 앱을 열어 승인하세요.',
       disconnect: '연결 해제',
       disconnectAccount: '{address} 연결 해제',
     },

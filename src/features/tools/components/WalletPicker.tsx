@@ -4,6 +4,7 @@ import { Button, Modal } from '@/components/ui'
 import { useT } from '@/lib/i18n'
 import xamanMark from '@/assets/wallets/xaman.svg'
 import joeyMark from '@/assets/wallets/joey.svg'
+import ledgerMark from '@/assets/wallets/ledger.svg'
 import { WALLETS, connectWallet, walletName, walletShortName, type ConnectStep, type WalletId } from '../api/wallet'
 import { closeWalletPicker, takeDestination, useWalletPickerOpen } from './pickerState'
 import { useWalletRequest } from './WalletRequest'
@@ -12,6 +13,7 @@ import { useWalletRequest } from './WalletRequest'
 const MARKS: Record<WalletId, string> = {
   xaman: xamanMark,
   joey: joeyMark,
+  ledger: ledgerMark,
 }
 
 export interface WalletPickerProps {

@@ -38,6 +38,7 @@ export const ja: Dictionary = {
       connectWallet: 'ウォレットを接続',
       connectTitle: '{wallet} で接続',
       confirmIn: '{wallet} を開いて、この QR コードを読み取ってください。',
+      confirmOnDevice: 'Ledger を接続し、XRP アプリを開いて承認してください。',
       disconnect: '切断',
       disconnectAccount: '{address} の接続を解除',
     },
