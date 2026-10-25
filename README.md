@@ -2,7 +2,7 @@
 
 XRP Ledger tools under the MyWeb3.me brand: Generate SourceTag, Generate
 xrp-ledger.toml, Set Domain, Set EmailHash and Set Stablecoin Trust Lines.
-React, Vite and TypeScript on Vercel, with one server function that creates
+React, Vite and TypeScript on AWS, with one server function that creates
 Xaman sign requests. XRP Ledger Mainnet only. No database; nothing is logged.
 
 ## Running it
@@ -29,33 +29,35 @@ npm run dev        # http://localhost:5173
 | `/domain` | Set or remove the account's Domain — signs with the wallet |
 | `/emailhash` | Set or remove the account's EmailHash — signs with the wallet |
 
-## Deploying on Vercel
+## Deploying on AWS
 
-The client's runbook (`docs/client/game-day-runbook.md`) is the full plan.
-In short:
+Everything runs on AWS (us-east-1): the site in S3 behind CloudFront, and
+`/api/sign` on Lambda behind the same distribution's `/api/*` route.
 
-1. **Import the repository** — Vercel → Add New → Project → this repo. The
-   framework is detected as Vite; `vercel.json` holds the build settings and
-   the rewrite that lets a refreshed page reach the app.
-2. **Environment variables** — Settings → Environment Variables, for
-   Production and Preview:
+1. **Deploys** — a push to `main` runs `.github/workflows/deploy.yml`: lint,
+   build, `test:api`, then the site to S3, a CloudFront invalidation, and the
+   function's new code to Lambda. GitHub signs in to AWS through OIDC; the
+   repository holds the role (`AWS_ROLE_ARN`) and the names (`AWS_REGION`,
+   `S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`, `SIGN_FUNCTION_NAME`), never keys.
+2. **Environment variables** — on the Lambda function, not in the repository:
 
    | Name | Where it comes from | Reaches the browser? |
    |---|---|---|
    | `XAMAN_API_KEY` | apps.xumm.dev | No |
    | `XAMAN_API_SECRET` | apps.xumm.dev | **No, never** |
-   | `VITE_WALLETCONNECT_PROJECT_ID` | cloud.reown.com | Yes, by design |
+   | `ORIGIN_VERIFY` | a random secret CloudFront also sends, so the function answers only through the site | No |
    | `XAMAN_RETURN_URL` | optional — where Xaman sends people after signing; `https://myweb3.me` if unset | No |
-   | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | optional — Upstash (Vercel Marketplace), for a rate limit shared by every copy of the function | No |
+   | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | optional — Upstash, for a rate limit shared by every copy of the function | No |
 
-   Redeploy after adding them.
-3. **Rate limit** — Firewall → a rate-limit rule on `/api/sign`, about 10
-   requests a minute per IP. The function also limits itself — shared through
-   Upstash when its two variables are set, per running copy otherwise.
-4. **Domain** — Settings → Domains → `myweb3.me` and `www.myweb3.me`; add the
-   records Vercel shows at Bluehost (an A record and a CNAME — not a nameserver
-   change). Rehearse on a test address first, so myweb3.me keeps serving what
-   it does now until the day.
+   `VITE_WALLETCONNECT_PROJECT_ID` (cloud.reown.com) is public by design and
+   built into the page; the code carries the project's ID when it is unset.
+3. **Rate limit** — the function limits itself to about 10 requests a minute
+   per IP: shared through Upstash when its two variables are set, per running
+   copy otherwise.
+4. **Domain** — `www.myweb3.me` is a CNAME at Bluehost to the CloudFront
+   distribution, with its certificate in ACM; `myweb3.me` redirects to it.
+   CloudFront answers any path that is not a file with `index.html`, so a deep
+   link or a refresh reaches the app.
 
 ## The server function
 

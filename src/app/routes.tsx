@@ -15,8 +15,8 @@ import { LegalScreen } from '@/features/legal'
  * full MyWeb3 app takes that address — then they move to tools.myweb3.me, and
  * nothing here changes, since every path is relative to the root.
  *
- * Paths are real, not hashes. `vercel.json` rewrites every path that is not a
- * file or the API to index.html, so a deep link or a refresh reaches the app.
+ * Paths are real, not hashes. CloudFront answers every path that is not a
+ * file or the API with index.html, so a deep link or a refresh reaches the app.
  */
 export const PATHS = {
   home: '/',

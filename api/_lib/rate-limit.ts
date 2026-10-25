@@ -1,13 +1,9 @@
 /**
  * About 10 sign requests a minute per IP (the client's runbook §4).
  *
- * The runbook's first choice is a Vercel Firewall rule on `/api/sign`, which
- * needs no code; this is its second, for when the plan has no such rule or as
- * a second line behind it. With `UPSTASH_REDIS_REST_URL` and
- * `UPSTASH_REDIS_REST_TOKEN` set (Upstash's free tier, from the Vercel
- * Marketplace), the count is shared by every running copy of the function.
- * Without them it is counted in memory, per copy — a soft limit, which is why
- * the firewall rule matters.
+ * With `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` set (Upstash's
+ * free tier), the count is shared by every running copy of the function.
+ * Without them it is counted in memory, per copy — a soft limit.
  *
  * It fails open: if Upstash cannot be reached, the request goes ahead rather
  * than the site refusing everyone.

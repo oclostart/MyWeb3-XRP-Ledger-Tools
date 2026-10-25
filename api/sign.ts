@@ -88,7 +88,7 @@ function build(action: Exclude<Action, 'signin'>, value: unknown, account: strin
   }
 }
 
-/** The client's IP, as Vercel passes it on. */
+/** The client's IP, as `aws/sign-lambda.ts` passes it on. */
 const clientIp = (request: Request) =>
   request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 
