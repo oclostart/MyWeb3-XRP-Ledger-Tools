@@ -47,7 +47,7 @@ validated ledger.
   give pages no USB or Bluetooth, and the window says so. The person confirms
   the address on the device when connecting, and every transaction on its
   screen. Built with Ledger's official `@ledgerhq` libraries, not yet run on a
-  device.
+  device. Full details and the documentation used: [`docs/ledger.md`](docs/ledger.md).
 - The connected wallet is kept only in the browser (`localStorage`, plus
   WalletConnect's own storage for Joey). No cookies, no database. Private keys
   never leave the wallet.
