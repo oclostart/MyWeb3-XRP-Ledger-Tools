@@ -66,7 +66,7 @@ export function ToolsEmailHashScreen() {
           placeholder={t('tools.emailHash.field')}
           normalise={normaliseEmailHash}
           invalid={t('tools.emailHash.invalid')}
-          current={account.isPending ? undefined : (hash ?? '')}
+          current={hash}
           currentTitle={t('tools.emailHash.current')}
           notSet={t('tools.emailHash.notSet')}
           setLabel={t('tools.emailHash.set')}
@@ -78,7 +78,7 @@ export function ToolsEmailHashScreen() {
           // Held back until the account is read, so a linked account never
           // shows the line on finding a hash and then takes it away.
           help={
-            linked || account.isPending
+            linked || !account.data
               ? undefined
               : rich('tools.emailHash.find', {
                   myweb3: (

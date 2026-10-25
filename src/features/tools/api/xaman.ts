@@ -6,8 +6,9 @@ import { request } from '@/lib/api/client'
  * answered. The answer itself — who signed, the transaction's id — is always
  * read back from the server, never taken from the socket.
  *
- * A dropped socket, or a phone back from the Xaman app with its tab asleep,
- * falls back to asking the server every few seconds.
+ * The server is asked every few seconds as well, and when a phone comes back
+ * from the Xaman app: a socket can drop, or stay open and go quiet on a
+ * network that holds it (client, 2026-10-25), and never say it was signed.
  */
 
 interface Created {
@@ -30,7 +31,7 @@ interface Status {
 /** The step a request reports: its link once made, then whether it is opened. */
 export type XamanProgress = { link: string; opened: boolean }
 
-/** How often the server is asked when the socket cannot say. */
+/** How often the server is asked, whatever the socket says. */
 const POLL_MS = 5_000
 
 /** Declined in the wallet — told apart from a failure by its name, as `AbortError` is. */
@@ -43,7 +44,7 @@ const post = <T>(body: object, signal: AbortSignal) =>
 function follow(created: Created, onProgress: (progress: XamanProgress) => void, signal: AbortSignal): Promise<Status> {
   return new Promise((resolve, reject) => {
     let socket: WebSocket | null = null
-    let poll: ReturnType<typeof setInterval> | undefined
+    let poll: ReturnType<typeof setInterval>
     let done = false
 
     const finish = (settle: () => void) => {
@@ -58,6 +59,8 @@ function follow(created: Created, onProgress: (progress: XamanProgress) => void,
     const check = () =>
       post<Status>({ status: created.uuid }, signal)
         .then((status) => {
+          // A check still out when another settled the request says nothing new.
+          if (done) return
           if (status.opened) onProgress({ link: created.link, opened: true })
           if (status.resolved || status.expired) finish(() => resolve(status))
         })
@@ -66,10 +69,6 @@ function follow(created: Created, onProgress: (progress: XamanProgress) => void,
           // request was withdrawn.
           if (error.name === 'AbortError') finish(() => reject(error))
         })
-
-    const startPolling = () => {
-      if (!done && poll === undefined) poll = setInterval(check, POLL_MS)
-    }
 
     const onVisible = () => {
       if (document.visibilityState === 'visible') void check()
@@ -80,10 +79,10 @@ function follow(created: Created, onProgress: (progress: XamanProgress) => void,
     })
     document.addEventListener('visibilitychange', onVisible)
 
+    poll = setInterval(check, POLL_MS)
     try {
       socket = new WebSocket(created.websocket)
     } catch {
-      startPolling()
       return
     }
     socket.onmessage = (event) => {
@@ -96,7 +95,6 @@ function follow(created: Created, onProgress: (progress: XamanProgress) => void,
       if (message.opened) onProgress({ link: created.link, opened: true })
       if (message.signed !== undefined || message.expired) void check()
     }
-    socket.onclose = startPolling
   })
 }
 

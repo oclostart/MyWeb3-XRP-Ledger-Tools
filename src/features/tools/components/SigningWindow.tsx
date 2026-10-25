@@ -29,6 +29,8 @@ export function SigningWindow({ signing }: { signing: Signing }) {
   if (!run || !step) return null
 
   const ended = step.step === 'cancelled' || step.step === 'failed'
+  // Signed in the wallet: the code is done with, so it goes while the ledger confirms (client, 2026-10-25).
+  const confirming = step.step === 'confirming'
   const title =
     step.step === 'cancelled'
       ? t('tools.sign.cancelledTitle')
@@ -41,16 +43,18 @@ export function SigningWindow({ signing }: { signing: Signing }) {
       open
       onClose={signing.close}
       title={title}
-      subtitle={ended ? undefined : request.line}
+      subtitle={ended ? undefined : confirming ? t('tools.sign.confirming') : request.line}
       subtitleTone="default"
       size="2xs"
-      footer={ended ? <Button onClick={signing.retry}>{t('tools.sign.tryAgain')}</Button> : request.footer}
+      footer={
+        ended ? <Button onClick={signing.retry}>{t('tools.sign.tryAgain')}</Button> : confirming ? undefined : request.footer
+      }
     >
       {ended ? (
         <p role="alert" className="text-center type-body text-text-muted">
           {step.step === 'cancelled' ? t('tools.sign.cancelled') : t('tools.sign.failed')}
         </p>
-      ) : (
+      ) : confirming ? null : (
         request.body
       )}
     </Modal>

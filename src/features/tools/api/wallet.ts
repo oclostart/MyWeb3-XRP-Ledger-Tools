@@ -65,13 +65,15 @@ export type SignRequest =
 /**
  * Where a signature has got to, as the signing window shows it. `link` is the
  * request a phone opens — Xaman's; Joey Wallet asks in its own app over the
- * connection it already has, so it has none. `signed` comes only once the
+ * connection it already has, so it has none. `confirming` is a signature the
+ * wallet has sent, waiting for the ledger; `signed` comes only once the
  * ledger has validated the transaction.
  */
 export type SignStep =
   | { step: 'preparing' }
   | { step: 'waiting'; link?: string }
   | { step: 'opened'; link?: string }
+  | { step: 'confirming' }
   | { step: 'signed'; txid: string }
   | { step: 'cancelled' }
   | { step: 'failed' }
@@ -156,6 +158,7 @@ const real: WalletApi = {
         onStep({ step: 'waiting' })
         txid = await signJoey(session.address, toTransaction(session.address, request), signal)
       }
+      onStep({ step: 'confirming' })
       onStep((await waitForValidated(txid, signal)) ? { step: 'signed', txid } : { step: 'failed' })
     } catch (error) {
       const name = (error as Error).name
@@ -283,6 +286,8 @@ export function useAccount(address: string | undefined) {
     queryKey: accountKey(address ?? ''),
     queryFn: () => api.readAccount(address ?? ''),
     enabled: Boolean(address),
+    // Each read already falls back to a second node; one more try is enough before the page gives up.
+    retry: 1,
   })
 }
 
