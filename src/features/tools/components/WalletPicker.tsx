@@ -89,7 +89,7 @@ export function WalletPicker({ open, onClose, onConnected }: WalletPickerProps) 
   const step = run?.step
   const link = step && (step.step === 'waiting' || step.step === 'opened') ? step.link : undefined
   const wallet = walletName(run?.wallet ?? 'xaman')
-  const sign = useWalletRequest(run?.wallet ?? 'xaman', link, t('tools.wallet.confirmIn', { wallet }))
+  const sign = useWalletRequest(run?.wallet ?? 'xaman', link, t('tools.wallet.confirmIn', { wallet }), true)
 
   if (run && step?.step === 'failed') {
     return (

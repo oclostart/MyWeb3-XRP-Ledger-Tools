@@ -45,7 +45,7 @@ export const ja: Dictionary = {
       title: '{wallet} で署名',
       scan: '{wallet} アプリを開いて、この QR コードを読み取ってください。',
       openHere: 'このスマートフォンの {wallet} アプリでリクエストを開いてください。',
-      confirmIn: '{wallet} を開いて、この QR コードを読み取ってください。',
+      confirmHere: '{wallet} アプリでリクエストを確認してください。',
       open: '{wallet} で開く',
       cancelledTitle: 'トランザクションはキャンセルされました',
       cancelled: '変更はありません。',
