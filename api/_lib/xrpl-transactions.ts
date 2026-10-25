@@ -105,9 +105,13 @@ export function buildSetEmailHash(hash: string, account?: string): AccountSetTx 
   return { ...base(account), EmailHash: normalizeEmailHash(hash) };
 }
 
-/** Remove EmailHash. 32 zeros tells the ledger to delete the field. */
+/**
+ * Remove EmailHash. The ledger deletes the field on 32 zeros; an empty string
+ * encodes to those same bytes, and it is the form Xaman accepts — its checker
+ * refuses the zeros spelled out (code 618, 2026-10-25).
+ */
 export function buildRemoveEmailHash(account?: string): AccountSetTx {
-  return { ...base(account), EmailHash: EMAIL_HASH_ZERO };
+  return { ...base(account), EmailHash: "" };
 }
 
 /** Set Domain. */
