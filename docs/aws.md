@@ -105,7 +105,25 @@ DNS stays at Bluehost (no nameserver change):
 6. Update the Lambda code and wait for it
 
 The role is `myweb3tools-site-deploy`; it trusts only this repository's `main`
-branch. Repository settings (Settings → Secrets and variables → Actions):
+branch. No person signs in to AWS for a deploy: GitHub Actions presents an
+OIDC token and the role's trust policy checks its subject. The repository
+issues the immutable form of that subject (`use_immutable_subject`), which
+carries the owner's and the repository's numeric IDs, and the trust policy
+matches on those IDs with the name wildcarded:
+
+```
+repo:oclostart@114838175/*@1432896925:ref:refs/heads/main
+```
+
+So renaming the repository cannot break deploys again — the rename of
+2026-10-25 did, because the policy then named `MyWeb3.me-Tools` literally, and
+every deploy failed with `Not authorized to perform sts:AssumeRoleWithWebIdentity`
+until 2026-10-27. Two things would still break it, both deliberate acts:
+transferring the repository to another owner (new owner ID), or turning the
+immutable subject off (`gh api repos/oclostart/MyWeb3-XRP-Ledger-Tools/actions/oidc/customization/sub`).
+Either way, the fix is this one condition on the role.
+
+Repository settings (Settings → Secrets and variables → Actions):
 
 | Kind | Name |
 |---|---|
