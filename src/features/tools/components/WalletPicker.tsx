@@ -8,6 +8,7 @@ import ledgerMark from '@/assets/wallets/ledger.svg'
 import {
   WALLETS,
   connectWallet,
+  failureReason,
   walletName,
   walletShortName,
   type ConnectStep,
@@ -37,7 +38,11 @@ export interface WalletPickerProps {
  * failed. A Ledger first waits on `link`, the person's choice of USB or
  * Bluetooth.
  */
-type Run = { wallet: WalletId; via?: LedgerLink; step: ConnectStep | { step: 'failed' } | { step: 'link' } }
+type Run = {
+  wallet: WalletId
+  via?: LedgerLink
+  step: ConnectStep | { step: 'failed'; reason?: string } | { step: 'link' }
+}
 
 /**
  * The Wallet window (T2; titled Select Wallet until R1, 2026-10-13): the
@@ -108,8 +113,10 @@ export function WalletPicker({ open, onClose, onConnected }: WalletPickerProps) 
         setRun(null)
         done()
       })
-      .catch((error: Error) => {
-        if (error.name !== 'AbortError') setRun({ wallet, via, step: { step: 'failed' } })
+      .catch((error: unknown) => {
+        if ((error as Error).name === 'AbortError') return
+        console.warn(`Wallet: connecting ${wallet}${via ? ` over ${via}` : ''} failed`, error)
+        setRun({ wallet, via, step: { step: 'failed', reason: failureReason(error) } })
       })
   }
 
@@ -130,6 +137,7 @@ export function WalletPicker({ open, onClose, onConnected }: WalletPickerProps) 
         <p role="alert" className="text-center type-body text-text-muted">
           {t('common.error')}
         </p>
+        {step.reason && <p className="mt-2 text-center type-caption text-text-subtle">{step.reason}</p>}
       </Modal>
     )
   }
