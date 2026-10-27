@@ -76,7 +76,13 @@ export type SignStep =
   | { step: 'confirming' }
   | { step: 'signed'; txid: string }
   | { step: 'cancelled' }
-  | { step: 'failed' }
+  | { step: 'failed'; reason?: string }
+
+/** What went wrong, in the error's own words — shown under the generic line so a failure can be told apart from another. */
+export const failureReason = (error: unknown): string | undefined => {
+  const message = error instanceof Error ? error.message : String(error)
+  return message || undefined
+}
 
 /**
  * Where a sign-in has got to, as the Wallet window's Connect with Xaman shows
@@ -163,7 +169,9 @@ const real: WalletApi = {
     } catch (error) {
       const name = (error as Error).name
       if (name === 'AbortError') return
-      onStep(name === 'CancelledError' ? { step: 'cancelled' } : { step: 'failed' })
+      if (name === 'CancelledError') return onStep({ step: 'cancelled' })
+      console.warn(`Wallet: signing with ${session.wallet} failed`, error)
+      onStep({ step: 'failed', reason: failureReason(error) })
     }
   },
 }

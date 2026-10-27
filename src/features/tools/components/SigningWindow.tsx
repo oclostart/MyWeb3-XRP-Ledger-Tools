@@ -51,9 +51,14 @@ export function SigningWindow({ signing }: { signing: Signing }) {
       }
     >
       {ended ? (
-        <p role="alert" className="text-center type-body text-text-muted">
-          {step.step === 'cancelled' ? t('tools.sign.cancelled') : t('tools.sign.failed')}
-        </p>
+        <>
+          <p role="alert" className="text-center type-body text-text-muted">
+            {step.step === 'cancelled' ? t('tools.sign.cancelled') : t('tools.sign.failed')}
+          </p>
+          {step.step === 'failed' && step.reason && (
+            <p className="mt-2 text-center type-caption text-text-subtle">{step.reason}</p>
+          )}
+        </>
       ) : confirming ? null : (
         request.body
       )}
